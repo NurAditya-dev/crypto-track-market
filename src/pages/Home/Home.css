@@ -1,0 +1,223 @@
+.home {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 60px;
+    gap: 36px;
+}
+
+.hero {
+    width: min(800px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.05em;
+    color: #f8fafc;
+}
+
+.hero p {
+    max-width: 620px;
+    color: #cbd5e1;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.search-form {
+    width: min(680px, 100%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.search-input-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
+    overflow: hidden;
+}
+
+.search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #f8fafc;
+    font-size: 1rem;
+    padding: 16px 18px;
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+.clear-search {
+    border: none;
+    background: transparent;
+    color: #cbd5e1;
+    font-size: 1.5rem;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.search-button {
+    border: none;
+    border-radius: 12px;
+    padding: 15px 22px;
+    background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%);
+    color: #0f172a;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.search-button:hover {
+    transform: translateY(-1px);
+}
+
+.suggestion-box {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.3);
+    z-index: 12;
+}
+
+.suggestion-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: #f8fafc;
+    text-align: left;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(148, 163, 184, 0.08);
+}
+
+.crypto-table-wrap {
+    width: min(1100px, 100%);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    background: rgba(15, 23, 42, 0.45);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+}
+
+.crypto-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #e2e8f0;
+}
+
+.crypto-table th,
+.crypto-table td {
+    padding: 18px 24px;
+    text-align: left;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.crypto-table th {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(15, 23, 42, 0.7);
+}
+
+.crypto-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-rank {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.table-coin {
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.coin-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.coin-image {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.positive {
+    color: #34d399;
+    font-weight: 600;
+}
+
+.negative {
+    color: #f87171;
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .home {
+        padding-top: 30px;
+    }
+
+    .search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-button {
+        width: 100%;
+    }
+
+    .crypto-table th,
+    .crypto-table td {
+        padding: 14px 12px;
+        font-size: 0.8rem;
+    }
+}

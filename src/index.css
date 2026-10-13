@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body {
+    background: #0f172a;
+    font-family: Inter, 'Segoe UI', sans-serif;
+}
+a{
+    text-decoration: none;
+    color: inherit;
+}
+.app{
+    min-height: 100vh;
+    color: #e5e7eb;
+    background: linear-gradient(135deg, #0f172a 0%, #1a2333 35%, #111827 100%);
+    background-attachment: fixed;
+}
+.navbar .logo{
+    width: max(12vw, 120px);
+}

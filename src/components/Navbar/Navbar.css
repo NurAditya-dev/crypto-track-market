@@ -1,0 +1,87 @@
+.navbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 10%;
+    color: #dfe7f3;
+    background: rgba(15, 23, 42, 0.72);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    backdrop-filter: blur(10px);
+}
+.navbar .logo{
+    width: max(12vw, 120px);
+    filter: brightness(0.95);
+}
+.navbar ul{
+    display: flex;
+    gap: 40px;
+    list-style: none;
+}
+.navbar li{
+    cursor: pointer;
+    color: #cbd5e1;
+    transition: color 0.2s ease;
+}
+.navbar li:hover{
+    color: #f8fafc;
+}
+.nav-right{
+    display: flex;
+    align-items: center;
+    gap: max(1vw,12px);
+}
+.currency-select{
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(15, 23, 42, 0.7);
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+.signup-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%);
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 0.92rem;
+    box-shadow: 0 8px 18px rgba(148, 163, 184, 0.25);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.signup-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 12px 20px rgba(148, 163, 184, 0.32);
+}
+.arrow-icon{
+    width: 14px;
+    height: 14px;
+    filter: brightness(0.15);
+}
+.navbar option{
+    background: #09005c;
+    color: white;
+}
+.navbar button{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 500;
+    collor: #393939;
+    background: white;
+    border: none;
+    cursor: pointer;
+}
+.navbar button img{
+    width: 13px;
+}
+    
