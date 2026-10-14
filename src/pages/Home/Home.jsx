@@ -9,7 +9,7 @@ const Home = () => {
   const [isSuggestionOpen, setIsSuggestionOpen] = useState(false)
   const [selectedCoinId, setSelectedCoinId] = useState(null)
 
-  const matchesCoinPrefix = (coin, value) => {
+  const matchesCoinSearch = (coin, value) => {
     const term = value.trim().toLowerCase()
 
     if (!term) return true
@@ -17,17 +17,17 @@ const Home = () => {
     const coinName = coin.name.toLowerCase()
     const coinSymbol = coin.symbol.toLowerCase()
 
-    return coinName.startsWith(term) || coinSymbol.startsWith(term)
+    return coinName.includes(term) || coinSymbol.includes(term)
   }
 
-  const filterByFirstLetter = (value) => {
+  const filterBySearchTerm = (value) => {
     const term = value.trim().toLowerCase()
 
     if (!term) {
       return allCoin.slice(0, 10)
     }
 
-    return allCoin.filter((coin) => matchesCoinPrefix(coin, term))
+    return allCoin.filter((coin) => matchesCoinSearch(coin, term))
   }
 
   useEffect(() => {
@@ -46,14 +46,14 @@ const Home = () => {
       }
     }
 
-    const filtered = filterByFirstLetter(searchTerm)
-    setDisplayCoin(filtered.slice(0, 10))
+    const filtered = filterBySearchTerm(searchTerm)
+    setDisplayCoin(filtered)
   }, [allCoin, searchTerm, selectedCoinId])
 
   const suggestions = useMemo(() => {
     if (!searchTerm.trim() || !isSuggestionOpen) return []
 
-    return allCoin.filter((coin) => matchesCoinPrefix(coin, searchTerm)).slice(0, 6)
+    return allCoin.filter((coin) => matchesCoinSearch(coin, searchTerm)).slice(0, 6)
   }, [allCoin, searchTerm, isSuggestionOpen])
 
   const handleSearchSubmit = (e) => {
@@ -65,20 +65,10 @@ const Home = () => {
       return
     }
 
-    const exactMatch = allCoin.find((coin) => {
-      return coin.name.toLowerCase() === searchTerm.trim().toLowerCase() ||
-        coin.symbol.toLowerCase() === searchTerm.trim().toLowerCase()
-    })
-
-    if (exactMatch) {
-      setSelectedCoinId(exactMatch.id)
-      setDisplayCoin([exactMatch])
-      return
-    }
-
-    const filtered = filterByFirstLetter(searchTerm)
+    const filtered = filterBySearchTerm(searchTerm)
     setSelectedCoinId(null)
-    setDisplayCoin(filtered.slice(0, 10))
+    setDisplayCoin(filtered)
+    setIsSuggestionOpen(false)
   }
 
   const handleSuggestionClick = (coinName) => {
