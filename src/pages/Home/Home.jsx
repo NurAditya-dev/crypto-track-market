@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import './Home.css'
 import { CoinContext } from '../../context/CoinContext'
 
@@ -8,6 +8,25 @@ const Home = () => {
   const [displayCoin, setDisplayCoin] = useState([])
   const [isSuggestionOpen, setIsSuggestionOpen] = useState(false)
   const [selectedCoinId, setSelectedCoinId] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const tableWrapRef = useRef(null)
+
+  const COINS_PER_PAGE = 10
+  const totalPages = Math.ceil(displayCoin.length / COINS_PER_PAGE) || 1
+
+  const paginatedCoin = useMemo(() => {
+    const startIndex = (currentPage - 1) * COINS_PER_PAGE
+    return displayCoin.slice(startIndex, startIndex + COINS_PER_PAGE)
+  }, [displayCoin, currentPage])
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage)
+      if (tableWrapRef.current) {
+        tableWrapRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+  }
 
   const matchesCoinSearch = (coin, value) => {
     const term = value.trim().toLowerCase()
@@ -24,16 +43,17 @@ const Home = () => {
     const term = value.trim().toLowerCase()
 
     if (!term) {
-      return allCoin.slice(0, 10)
+      return allCoin
     }
 
     return allCoin.filter((coin) => matchesCoinSearch(coin, term))
   }
 
   useEffect(() => {
+    setCurrentPage(1)
     if (!searchTerm.trim()) {
       setSelectedCoinId(null)
-      setDisplayCoin(allCoin.slice(0, 10))
+      setDisplayCoin(allCoin)
       return
     }
 
@@ -50,6 +70,26 @@ const Home = () => {
     setDisplayCoin(filtered)
   }, [allCoin, searchTerm, selectedCoinId])
 
+  // Reset to initial home state when logo is clicked
+  useEffect(() => {
+    const handleResetHome = () => {
+      setSelectedCoinId(null)
+      setSearchTerm('')
+      setIsSuggestionOpen(false)
+      setDisplayCoin(allCoin)
+      setCurrentPage(1)
+      if (tableWrapRef.current) {
+        tableWrapRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    window.addEventListener('reset-crypto-home', handleResetHome)
+    return () => {
+      window.removeEventListener('reset-crypto-home', handleResetHome)
+    }
+  }, [allCoin])
+
   const suggestions = useMemo(() => {
     if (!searchTerm.trim() || !isSuggestionOpen) return []
 
@@ -58,10 +98,11 @@ const Home = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
+    setCurrentPage(1)
 
     if (!searchTerm.trim()) {
       setSelectedCoinId(null)
-      setDisplayCoin(allCoin.slice(0, 10))
+      setDisplayCoin(allCoin)
       return
     }
 
@@ -69,10 +110,14 @@ const Home = () => {
     setSelectedCoinId(null)
     setDisplayCoin(filtered)
     setIsSuggestionOpen(false)
+    if (tableWrapRef.current) {
+      tableWrapRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   const handleSuggestionClick = (coinName) => {
     const targetCoin = allCoin.find((coin) => coin.name.toLowerCase() === coinName.toLowerCase())
+    setCurrentPage(1)
 
     if (targetCoin) {
       setSelectedCoinId(targetCoin.id)
@@ -84,12 +129,16 @@ const Home = () => {
     }
 
     setIsSuggestionOpen(false)
+    if (tableWrapRef.current) {
+      tableWrapRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   const handleSearchChange = (value) => {
     const trimmedValue = value
     setSelectedCoinId(null)
     setSearchTerm(trimmedValue)
+    setCurrentPage(1)
     setIsSuggestionOpen(trimmedValue.trim().length > 0)
   }
 
@@ -122,6 +171,8 @@ const Home = () => {
                     setSelectedCoinId(null)
                     setSearchTerm('')
                     setIsSuggestionOpen(false)
+                    setDisplayCoin(allCoin)
+                    setCurrentPage(1)
                   }}
                 >
                   ×
@@ -157,7 +208,7 @@ const Home = () => {
         </form>
       </div>
 
-      <div className='crypto-table-wrap'>
+      <div className='crypto-table-wrap' ref={tableWrapRef}>
         <table className='crypto-table'>
           <thead>
             <tr>
@@ -169,25 +220,28 @@ const Home = () => {
             </tr>
           </thead>
           <tbody>
-            {displayCoin.length > 0 ? (
-              displayCoin.map((coin, index) => (
-                <tr key={`${coin.id}-${index}`}>
-                  <td className='table-rank'>{coin.market_cap_rank || index + 1}</td>
-                  <td className='table-coin'>
-                    <div className='coin-info'>
-                      <img src={coin.image} alt={coin.name} className='coin-image' />
-                      <span>
-                        {coin.name} ({coin.symbol.toUpperCase()})
-                      </span>
-                    </div>
-                  </td>
-                  <td>{currency.symbol}{coin.current_price.toLocaleString()}</td>
-                  <td className={coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}>
-                    {coin.price_change_percentage_24h?.toFixed(2) ?? '0.00'}%
-                  </td>
-                  <td>{currency.symbol}{coin.market_cap.toLocaleString()}</td>
-                </tr>
-              ))
+            {paginatedCoin.length > 0 ? (
+              paginatedCoin.map((coin, index) => {
+                const globalIndex = (currentPage - 1) * COINS_PER_PAGE + index + 1
+                return (
+                  <tr key={`${coin.id}-${coin.market_cap_rank || globalIndex}`}>
+                    <td className='table-rank'>{coin.market_cap_rank || globalIndex}</td>
+                    <td className='table-coin'>
+                      <div className='coin-info'>
+                        <img src={coin.image} alt={coin.name} className='coin-image' />
+                        <span>
+                          {coin.name} ({coin.symbol.toUpperCase()})
+                        </span>
+                      </div>
+                    </td>
+                    <td>{currency.symbol}{coin.current_price.toLocaleString()}</td>
+                    <td className={coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}>
+                      {coin.price_change_percentage_24h?.toFixed(2) ?? '0.00'}%
+                    </td>
+                    <td>{currency.symbol}{coin.market_cap.toLocaleString()}</td>
+                  </tr>
+                )
+              })
             ) : (
               <tr>
                 <td colSpan='5' className='no-results'>No coin found</td>
@@ -196,6 +250,30 @@ const Home = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className='pagination'>
+          <button
+            type='button'
+            className='pagination-btn'
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            &larr; Prev
+          </button>
+          <div className='pagination-info'>
+            <span>Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></span>
+          </div>
+          <button
+            type='button'
+            className='pagination-btn next-btn'
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next Page &rarr;
+          </button>
+        </div>
+      )}
     </div>
   )
 }
