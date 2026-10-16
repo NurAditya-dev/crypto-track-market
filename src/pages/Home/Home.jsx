@@ -28,6 +28,15 @@ const Home = () => {
     }
   }
 
+  const formatMarketCap = (num, symbol) => {
+    if (!num) return `${symbol}0`
+    if (num >= 1e15) return `${symbol}${(num / 1e15).toFixed(2)}Q`
+    if (num >= 1e12) return `${symbol}${(num / 1e12).toFixed(2)}T`
+    if (num >= 1e9) return `${symbol}${(num / 1e9).toFixed(2)}B`
+    if (num >= 1e6) return `${symbol}${(num / 1e6).toFixed(2)}M`
+    return `${symbol}${num.toLocaleString()}`
+  }
+
   const matchesCoinSearch = (coin, value) => {
     const term = value.trim().toLowerCase()
 
@@ -212,11 +221,17 @@ const Home = () => {
         <table className='crypto-table'>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Coins</th>
-              <th>Price</th>
-              <th>24H Change</th>
-              <th>Market cap</th>
+              <th className='col-rank'>#</th>
+              <th className='col-coin'>Coins</th>
+              <th className='col-price'>Price</th>
+              <th className='col-change'>
+                <span className='header-desktop'>24H Change</span>
+                <span className='header-mobile'>24H</span>
+              </th>
+              <th className='col-cap'>
+                <span className='header-desktop'>Market cap</span>
+                <span className='header-mobile'>MCap</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -229,16 +244,20 @@ const Home = () => {
                     <td className='table-coin'>
                       <div className='coin-info'>
                         <img src={coin.image} alt={coin.name} className='coin-image' />
-                        <span>
-                          {coin.name} ({coin.symbol.toUpperCase()})
-                        </span>
+                        <div className='coin-name-wrap'>
+                          <span className='coin-name'>{coin.name}</span>
+                          <span className='coin-symbol'>{coin.symbol.toUpperCase()}</span>
+                        </div>
                       </div>
                     </td>
-                    <td>{currency.symbol}{coin.current_price.toLocaleString()}</td>
-                    <td className={coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}>
-                      {coin.price_change_percentage_24h?.toFixed(2) ?? '0.00'}%
+                    <td className='table-price'>{currency.symbol}{coin.current_price.toLocaleString()}</td>
+                    <td className={`table-change ${coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
+                      {coin.price_change_percentage_24h >= 0 ? '+' : ''}{coin.price_change_percentage_24h?.toFixed(2) ?? '0.00'}%
                     </td>
-                    <td>{currency.symbol}{coin.market_cap.toLocaleString()}</td>
+                    <td className='table-cap'>
+                      <span className='cap-desktop'>{currency.symbol}{coin.market_cap.toLocaleString()}</span>
+                      <span className='cap-mobile'>{formatMarketCap(coin.market_cap, currency.symbol)}</span>
+                    </td>
                   </tr>
                 )
               })
