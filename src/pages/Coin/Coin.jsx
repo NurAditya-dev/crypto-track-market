@@ -35,11 +35,13 @@ const Coin = () => {
     navigate('/')
   }
 
+  const apiKey = import.meta.env.VITE_CG_DEMO_API_KEY
+
   const options = {
     method: 'GET',
     headers: {
       accept: 'application/json',
-      'x-cg-demo-api-key': 'CG-3nHwcYMJD9ZX8KpzYoKoiafS'
+      ...(apiKey ? { 'x-cg-demo-api-key': apiKey } : {})
     }
   }
 
