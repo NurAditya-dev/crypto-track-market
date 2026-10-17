@@ -20,7 +20,7 @@ const CoinContextProvider = (props) => {
 
     try {
       const response = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.name}&sparkline=false&price_change_percentage=24h`,
+        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.name}&sparkline=true&price_change_percentage=1h,24h,7d,30d,1y`,
         options
       )
       const data = await response.json()

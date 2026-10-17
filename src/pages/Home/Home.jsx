@@ -1,9 +1,12 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import './Home.css'
 import { CoinContext } from '../../context/CoinContext'
 
 const Home = () => {
   const { allCoin, currency } = useContext(CoinContext)
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [displayCoin, setDisplayCoin] = useState([])
   const [isSuggestionOpen, setIsSuggestionOpen] = useState(false)
@@ -79,6 +82,25 @@ const Home = () => {
     setDisplayCoin(filtered)
   }, [allCoin, searchTerm, selectedCoinId])
 
+  // Handle navigation to first/last page via query param
+  useEffect(() => {
+    const pageParam = searchParams.get('page')
+    if (pageParam === 'last' && totalPages > 1) {
+      setCurrentPage(totalPages)
+      if (tableWrapRef.current) {
+        tableWrapRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    } else if (pageParam) {
+      const pageNum = parseInt(pageParam, 10)
+      if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+        setCurrentPage(pageNum)
+        if (tableWrapRef.current) {
+          tableWrapRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      }
+    }
+  }, [searchParams, totalPages])
+
   // Reset to initial home state when logo is clicked
   useEffect(() => {
     const handleResetHome = () => {
@@ -124,23 +146,9 @@ const Home = () => {
     }
   }
 
-  const handleSuggestionClick = (coinName) => {
-    const targetCoin = allCoin.find((coin) => coin.name.toLowerCase() === coinName.toLowerCase())
-    setCurrentPage(1)
-
-    if (targetCoin) {
-      setSelectedCoinId(targetCoin.id)
-      setSearchTerm(targetCoin.name)
-      setDisplayCoin([targetCoin])
-    } else {
-      setSelectedCoinId(null)
-      setDisplayCoin([])
-    }
-
+  const handleSuggestionClick = (id) => {
     setIsSuggestionOpen(false)
-    if (tableWrapRef.current) {
-      tableWrapRef.current.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+    navigate(`/coin/${id}?from=${currentPage}`)
   }
 
   const handleSearchChange = (value) => {
@@ -196,7 +204,7 @@ const Home = () => {
                     type='button'
                     key={coin.id}
                     className='suggestion-item'
-                    onClick={() => handleSuggestionClick(coin.name)}
+                    onClick={() => handleSuggestionClick(coin.id)}
                   >
                     <img src={coin.image} alt={coin.name} className='coin-image' />
                     <span>
@@ -239,7 +247,11 @@ const Home = () => {
               paginatedCoin.map((coin, index) => {
                 const globalIndex = (currentPage - 1) * COINS_PER_PAGE + index + 1
                 return (
-                  <tr key={`${coin.id}-${coin.market_cap_rank || globalIndex}`}>
+                  <tr
+                    key={`${coin.id}-${coin.market_cap_rank || globalIndex}`}
+                    onClick={() => navigate(`/coin/${coin.id}?from=${currentPage}`)}
+                    className='crypto-table-row'
+                  >
                     <td className='table-rank'>{coin.market_cap_rank || globalIndex}</td>
                     <td className='table-coin'>
                       <div className='coin-info'>
@@ -274,22 +286,43 @@ const Home = () => {
         <div className='pagination'>
           <button
             type='button'
+            className='pagination-btn nav-edge-btn'
+            onClick={() => handlePageChange(1)}
+            disabled={currentPage === 1}
+            title='Kembali ke Halaman Awal'
+          >
+            « <span className='btn-text-desktop'>Halaman Awal</span><span className='btn-text-mobile'>Awal</span>
+          </button>
+          <button
+            type='button'
             className='pagination-btn'
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
+            title='Halaman Sebelumnya'
           >
-            &larr; Prev
+            ‹ Prev
           </button>
           <div className='pagination-info'>
-            <span>Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></span>
+            <span className='info-desktop'>Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></span>
+            <span className='info-mobile'><strong>{currentPage}</strong> / <strong>{totalPages}</strong></span>
           </div>
           <button
             type='button'
             className='pagination-btn next-btn'
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
+            title='Halaman Selanjutnya'
           >
-            Next Page &rarr;
+            Next ›
+          </button>
+          <button
+            type='button'
+            className='pagination-btn nav-edge-btn'
+            onClick={() => handlePageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            title='Langsung ke Halaman Akhir'
+          >
+            <span className='btn-text-desktop'>Halaman Akhir</span><span className='btn-text-mobile'>Akhir</span> »
           </button>
         </div>
       )}
