@@ -336,6 +336,14 @@
     background: rgba(255, 255, 255, 0.04);
 }
 
+.crypto-table-row {
+    cursor: pointer;
+}
+
+.crypto-table-row:hover {
+    background: rgba(56, 189, 248, 0.08) !important;
+}
+
 .crypto-table tbody tr:last-child td {
     border-bottom: none;
 }
@@ -552,4 +560,52 @@
 .pagination-info strong {
     color: #f8fafc;
     font-weight: 700;
+}
+
+.nav-edge-btn {
+    border-color: rgba(56, 189, 248, 0.25);
+    color: #e2e8f0;
+}
+
+.nav-edge-btn:hover:not(:disabled) {
+    border-color: #38bdf8;
+    color: #38bdf8;
+}
+
+.btn-text-mobile,
+.info-mobile {
+    display: none;
+}
+
+.btn-text-desktop,
+.info-desktop {
+    display: inline;
+}
+
+@media (max-width: 680px) {
+    .pagination {
+        gap: 6px;
+    }
+
+    .pagination-btn {
+        padding: 8px 10px;
+        font-size: 0.76rem;
+        gap: 4px;
+        border-radius: 10px;
+    }
+
+    .btn-text-desktop,
+    .info-desktop {
+        display: none;
+    }
+
+    .btn-text-mobile,
+    .info-mobile {
+        display: inline;
+    }
+
+    .pagination-info {
+        font-size: 0.78rem;
+        padding: 0 4px;
+    }
 }
