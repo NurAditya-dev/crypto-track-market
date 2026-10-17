@@ -21,10 +21,6 @@ const Coin = () => {
 
   const timeframes = [
     { label: '24 Jam', value: '1', name: '24 Jam' },
-    { label: '1 Minggu', value: '7', name: '1 Minggu' },
-    { label: '1 Bulan', value: '30', name: '1 Bulan' },
-    { label: '3 Bulan', value: '90', name: '3 Bulan' },
-    { label: '1 Tahun', value: '365', name: '1 Tahun' }
   ]
 
   const currentTf = timeframes.find((t) => t.value === days) || timeframes[0]
@@ -254,9 +250,6 @@ const Coin = () => {
   } else {
     // Fallback to market_data properties if available
     if (days === '1') tfChangePercent = coinData.market_data.price_change_percentage_24h ?? 0
-    else if (days === '7') tfChangePercent = coinData.market_data.price_change_percentage_7d ?? 0
-    else if (days === '30') tfChangePercent = coinData.market_data.price_change_percentage_30d ?? 0
-    else if (days === '365') tfChangePercent = coinData.market_data.price_change_percentage_1y ?? 0
   }
 
   const isTfPositive = tfChangePercent >= 0
