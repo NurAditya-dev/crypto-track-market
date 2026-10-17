@@ -398,14 +398,15 @@
     }
 
     .col-rank, .table-rank {
-        width: 9%;
-        padding-left: 4px;
-        padding-right: 1px;
+        width: 12%;
+        padding-left: 14px;
+        padding-right: 2px;
+        text-align: left;
     }
 
     .col-coin, .table-coin {
-        width: 33%;
-        padding-left: 1px;
+        width: 31%;
+        padding-left: 2px;
         padding-right: 2px;
     }
 
