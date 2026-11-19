@@ -165,10 +165,9 @@ const Home = () => {
   return (
     <div className='home'>
       <div className='hero'>
-        <h1>Largest <br /> Crypto Marketplace</h1>
+        <h1>Pantau harga<br />kripto</h1>
         <p>
-          Welcome to the world's largest cryptocurrency marketplace.
-          Sign up to explore more about cryptos.
+          Cari koin dan lihat harga, perubahan 24 jam, serta kapitalisasi pasarnya.
         </p>
         <form className='search-form' onSubmit={handleSearchSubmit}>
           <div className='search-wrapper'>
@@ -176,7 +175,7 @@ const Home = () => {
               <input
                 type='text'
                 className='search-input'
-                placeholder='Search crypto..'
+                placeholder='Cari nama atau simbol koin'
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
@@ -217,11 +216,11 @@ const Home = () => {
 
             {shouldShowNoSuggestionState && (
               <div className='suggestion-box'>
-                <div className='suggestion-item no-suggestion'>No coin found</div>
+                <div className='suggestion-item no-suggestion'>Koin tidak ditemukan</div>
               </div>
             )}
           </div>
-          <button type='submit' className='search-button'>Search</button>
+          <button type='submit' className='search-button'>Cari</button>
         </form>
       </div>
 
@@ -230,15 +229,15 @@ const Home = () => {
           <thead>
             <tr>
               <th className='col-rank'>#</th>
-              <th className='col-coin'>Coins</th>
-              <th className='col-price'>Price</th>
+              <th className='col-coin'>Koin</th>
+              <th className='col-price'>Harga</th>
               <th className='col-change'>
-                <span className='header-desktop'>24H Change</span>
-                <span className='header-mobile'>24H</span>
+                <span className='header-desktop'>Perubahan 24 jam</span>
+                <span className='header-mobile'>24 jam</span>
               </th>
               <th className='col-cap'>
-                <span className='header-desktop'>Market cap</span>
-                <span className='header-mobile'>MCap</span>
+                <span className='header-desktop'>Kapitalisasi pasar</span>
+                <span className='header-mobile'>Kap. pasar</span>
               </th>
             </tr>
           </thead>
@@ -275,7 +274,7 @@ const Home = () => {
               })
             ) : (
               <tr>
-                <td colSpan='5' className='no-results'>No coin found</td>
+                <td colSpan='5' className='no-results'>Koin tidak ditemukan</td>
               </tr>
             )}
           </tbody>
@@ -300,10 +299,10 @@ const Home = () => {
             disabled={currentPage === 1}
             title='Halaman Sebelumnya'
           >
-            ‹ Prev
+            Sebelumnya
           </button>
           <div className='pagination-info'>
-            <span className='info-desktop'>Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></span>
+            <span className='info-desktop'>Halaman <strong>{currentPage}</strong> dari <strong>{totalPages}</strong></span>
             <span className='info-mobile'><strong>{currentPage}</strong> / <strong>{totalPages}</strong></span>
           </div>
           <button
@@ -313,7 +312,7 @@ const Home = () => {
             disabled={currentPage === totalPages}
             title='Halaman Selanjutnya'
           >
-            Next ›
+            Selanjutnya
           </button>
           <button
             type='button'

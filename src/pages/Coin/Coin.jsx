@@ -322,7 +322,7 @@ const Coin = () => {
       <div className='chart-card'>
         <div className='chart-header'>
           <div className='chart-title-group'>
-            <h3>Grafik Naik Turun Harga ({coinData.symbol.toUpperCase()})</h3>
+            <h3>Grafik harga {coinData.symbol.toUpperCase()}</h3>
             <div className='chart-stats-summary'>
               <span>Tertinggi: <strong>{formatPrice(chartHigh, currency.symbol)}</strong></span>
               <span>Terendah: <strong>{formatPrice(chartLow, currency.symbol)}</strong></span>
