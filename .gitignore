@@ -24,6 +24,8 @@ dist-ssr
 secrets.*
 credentials.*
 .env.local
+vercel.json
+package-lock.json
 
 # Editor directories and files
 .vscode/*
