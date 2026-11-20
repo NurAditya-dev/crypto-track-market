@@ -23,6 +23,7 @@ dist-ssr
 *.pfx
 secrets.*
 credentials.*
+.env.local
 
 # Editor directories and files
 .vscode/*
