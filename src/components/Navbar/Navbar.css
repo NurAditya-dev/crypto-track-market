@@ -103,4 +103,32 @@
     background: #0f172a;
     color: #f8fafc;
 }
-    
+.google-login {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.account-name {
+    max-width: min(24vw, 14rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.login-message {
+    position: absolute;
+    right: min(6vw, 60px);
+    top: 100%;
+    max-width: 90vw;
+    padding: 10px 14px;
+    background: #1e293b;
+    border-radius: 8px;
+}
+.signup-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+@media (max-width: 480px) {
+    .navbar { flex-wrap: wrap; padding: 12px; gap: 8px; }
+    .nav-right { margin-left: auto; flex-wrap: wrap; max-width: 100%; }
+    .signup-btn { padding: 8px 10px; }
+}

@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import './Navbar.css'
+import GoogleLogin from './GoogleLogin'
 import logo from '../../assets/logo.png'
 import { CoinContext } from '../../context/CoinContext'
 import { Link } from 'react-router-dom'
@@ -38,6 +39,7 @@ const Navbar = () => {
           <option value='eur'>EUR</option>
           <option value='idr'>IDR</option>
         </select>
+        <GoogleLogin />
       </div>
     </div>
   )

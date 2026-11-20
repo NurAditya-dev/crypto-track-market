@@ -1,5 +1,15 @@
 # React + Vite
 
+## Mengaktifkan login Google
+
+1. Salin `.env.example` ke `.env.local`. Isi `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` dengan Project URL dan publishable key dari proyek Supabase.
+2. Di Google Cloud, konfigurasikan layar persetujuan OAuth dan buat OAuth client jenis **Web application**. Masukkan origin website ke **Authorized JavaScript origins** dan URL callback yang ditampilkan penyedia Google di Supabase ke **Authorized redirect URIs**.
+3. Di Supabase Authentication, aktifkan penyedia **Google** dan simpan Client ID serta Client Secret dari Google di pengaturan penyedia tersebut.
+4. Di **URL Configuration**, atur **Site URL** ke alamat website dan izinkan URL beranda untuk setiap lingkungan, misalnya `http://localhost:5173/` untuk Vite. Setelah login, pengguna kembali ke beranda.
+5. Jalankan ulang `npm run dev`. Untuk produksi, isi kedua variabel di lingkungan build lalu build dan deploy ulang. Pilih **Masuk dengan Google**, selesaikan persetujuan, lalu periksa nama akun setelah halaman dimuat ulang dan coba **Keluar**.
+
+[Panduan Google OAuth di Supabase](https://supabase.com/docs/guides/auth/social-sign-in/auth-google)
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
