@@ -1,5 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/saya/:path*", "destination": "/index.html" },
+    { "source": "/coin/:path*", "destination": "/index.html" }
+  ],
   "build": {
     "env": {
       "VITE_SUPABASE_URL": "https://wnxdvlioylyqdrjprfkw.supabase.co",

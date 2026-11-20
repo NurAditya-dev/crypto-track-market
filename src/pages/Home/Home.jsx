@@ -1,9 +1,11 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import './Home.css'
+import { AccountContext } from '../../account/AccountContext'
 import { CoinContext } from '../../context/CoinContext'
 
 const Home = () => {
+  const { user, entries, ready, busy, toggleWatch } = useContext(AccountContext)
   const { allCoin, currency } = useContext(CoinContext)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -254,6 +256,12 @@ const Home = () => {
                     <td className='table-rank'>{coin.market_cap_rank || globalIndex}</td>
                     <td className='table-coin'>
                       <div className='coin-info'>
+                        <button className="watch-star" type="button" aria-label={`Pantau ${coin.name}`}
+                          aria-pressed={entries.some(row => row.kind === 'watch' && row.coin_id === coin.id)}
+                          disabled={user === undefined || (user && !ready) || busy}
+                          onClick={e => { e.stopPropagation(); toggleWatch(coin) }}>
+                          {entries.some(row => row.kind === 'watch' && row.coin_id === coin.id) ? '★' : '☆'}
+                        </button>
                         <img src={coin.image} alt={coin.name} className='coin-image' />
                         <div className='coin-name-wrap'>
                           <span className='coin-name'>{coin.name}</span>
