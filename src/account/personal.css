@@ -52,7 +52,7 @@
 .remove-entry, .account-notice button { background: #1e293b; color: #e2e8f0; }
 .watch-star { border: 0; cursor: pointer; background: transparent; color: #cbd5e1; font-size: 1.35rem; padding: 3px; line-height: 1; }
 .watch-star[aria-pressed="true"] { color: #fbbf24; }
-.account-notice { position: fixed; bottom: 20px; right: 16px; max-width: calc(100vw - 32px); z-index: 60; box-shadow: 0 8px 22px #0006; }
+.account-notice { position: fixed; bottom: 20px; right: 16px; max-width: calc(100vw - 32px); z-index: 60; color: #f8fafc; box-shadow: 0 8px 22px #0006; }
 .account-notice button { margin: 6px 0 0 8px; }
 @media (max-width: 680px) {
   .market-nav a { font-size: .82rem; padding: 8px; }
