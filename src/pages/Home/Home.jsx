@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import './Home.css'
+import LockedFeatures from '../../account/LockedFeatures'
 import { AccountContext } from '../../account/AccountContext'
 import { CoinContext } from '../../context/CoinContext'
 
@@ -226,6 +227,7 @@ const Home = () => {
         </form>
       </div>
 
+      {user === null && <LockedFeatures />}
       <div className='crypto-table-wrap' ref={tableWrapRef}>
         <table className='crypto-table'>
           <thead>

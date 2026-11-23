@@ -2,12 +2,12 @@ import { useContext, useEffect, useState } from 'react'
 import { client, login } from '../../account/client'
 import { AccountContext } from '../../account/AccountContext'
 
-export default function GoogleLogin() {
+export default function GoogleLogin({ label = 'LOGIN' }) {
   const { user } = useContext(AccountContext)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState(() => {
     const params = new URLSearchParams(window.location.hash.slice(1))
-    return params.has('error') || new URLSearchParams(window.location.search).has('error')
+    return label === 'LOGIN' && (params.has('error') || new URLSearchParams(window.location.search).has('error'))
       ? 'Login Google belum berhasil. Silakan coba lagi.'
       : ''
   })
@@ -48,7 +48,7 @@ export default function GoogleLogin() {
     <div className="google-login">
       {name && <span className="account-name" title={name}>{name}</span>}
       <button type="button" className="signup-btn" disabled={busy || user === undefined} onClick={handleClick}>
-        {busy || user === undefined ? 'Memproses…' : user ? 'Keluar' : 'Masuk dengan Google'}
+        {busy || user === undefined ? 'Memproses…' : user ? 'Keluar' : label}
       </button>
       {message && <p className="login-message" role="status">{message}</p>}
     </div>

@@ -5,6 +5,25 @@
 }
 .market-nav a { color: #b6c5d8; }
 .market-nav a.active { background: #233650; color: #fff; }
+.locked-features {
+  width: min(1100px, 100%); display: grid; isolation: isolate; overflow: hidden;
+  border: 1px solid #314058; border-radius: 16px; background: #101c2e;
+}
+.locked-preview, .feature-gate { grid-area: 1 / 1; }
+.locked-preview {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 14px;
+  padding: 14px; filter: blur(3px); opacity: .55; user-select: none; pointer-events: none;
+}
+.preview-card { padding: 14px; border: 1px solid #374a64; border-radius: 10px; background: #192a40; }
+.preview-line { display: flex; justify-content: space-between; margin-top: 8px; color: #bbc9da; }
+.feature-gate {
+  position: relative; display: grid; place-items: center; align-content: center;
+  gap: 10px; padding: 18px; text-align: center;
+  background: linear-gradient(90deg, transparent, #101c2eed 50%, transparent);
+}
+.feature-gate .google-login { flex-direction: column; }
+.feature-gate .login-message { position: static; }
+.feature-gate .signup-btn { background: #dbeafe; color: #0f172a; }
 .market-nav span { margin-left: 6px; padding: 1px 6px; background: #164e63; color: #a5f3fc; border-radius: 5px; }
 .personal { padding-block: 30px 60px; display: grid; gap: 20px; }
 .personal h1 { font-size: clamp(1.8rem, 5vw, 3rem); letter-spacing: -.04em; }

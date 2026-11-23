@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react'
-import { Link, Navigate, NavLink, useSearchParams } from 'react-router-dom'
+import { Link, NavLink, useSearchParams } from 'react-router-dom'
+import LockedFeatures from './LockedFeatures'
 import { AccountContext } from './AccountContext'
 import { CoinContext } from '../context/CoinContext'
 import { client } from './client'
@@ -12,8 +13,7 @@ const money = (value, currency = 'idr') => Number.isFinite(value)
   : '—'
 
 export function MarketNav() {
-  const { user, entries } = useContext(AccountContext)
-  if (!user) return null
+  const { entries } = useContext(AccountContext)
   const triggered = entries.filter(row => row.kind === 'alert' && row.triggered_at).length
   return <nav className="market-nav" aria-label="Navigasi pasar">
     <NavLink to="/" end>Pasar</NavLink>
@@ -68,7 +68,7 @@ export default function PersonalMarket({ kind }) {
   const rows = entries.filter(row => row.kind === kind)
   const { quotes, failed } = useQuotes(kind === 'alert' ? [] : rows, currency.name)
   if (user === undefined) return <p className="personal">Memuat akun…</p>
-  if (!user) return <Navigate to="/" replace />
+  if (!user) return <main className="personal"><h1>{pages[kind]}</h1><LockedFeatures kind={kind} /></main>
   const choices = new Map(entries.map(row => [row.coin_id, { id: row.coin_id, name: row.coin_name }]))
   for (const coin of allCoin) choices.set(coin.id, coin)
   const coins = Array.from(choices.values()).sort((a,b) => a.name.localeCompare(b.name))
