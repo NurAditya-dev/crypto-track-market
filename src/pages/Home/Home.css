@@ -3,8 +3,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 36px min(5vw, 24px) 60px;
-    gap: 32px;
+    padding: 24px min(5vw, 24px) 60px;
+    gap: 18px;
     width: 100%;
 }
 
@@ -14,11 +14,11 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 18px;
+    gap: 10px;
 }
 
 .hero h1 {
-    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
     line-height: 1.1;
     letter-spacing: -0.04em;
     color: #f8fafc;
@@ -608,4 +608,70 @@
         font-size: 0.78rem;
         padding: 0 4px;
     }
+}
+
+.market-controls {
+    width: min(1100px, 100%);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+}
+.price-status, .market-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.price-status p { color: #e2e8f0; font-size: .85rem; }
+.price-status small { display: block; color: #afbed1; margin-top: 3px; }
+.price-status button, .market-filters button, .mobile-sort select {
+    background: #152238;
+    border: 1px solid #465870;
+    border-radius: 9px;
+    color: #e2e8f0;
+    font: inherit;
+    font-size: .82rem;
+    padding: 8px 10px;
+}
+.price-status button, .market-filters button { cursor: pointer; }
+.price-status button:disabled { opacity: .6; cursor: wait; }
+.market-filters button[aria-pressed='true'] {
+    color: #dff7ff;
+    background: #1c3951;
+    border-color: #5eaac6;
+}
+.sort-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+th[aria-sort] .sort-arrow { color: #7dd3fc; }
+.mobile-sort { display: none; }
+.sparkline { display: block; width: 88px; height: 24px; }
+.crypto-table td { font-variant-numeric: tabular-nums; }
+.crypto-table-wrap { scroll-margin-top: 100px; }
+
+@media (max-width: 680px) {
+    .home { gap: 15px; }
+    .market-controls { align-items: stretch; }
+    .price-status { width: 100%; justify-content: space-between; }
+    .mobile-sort { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+    .crypto-table :is(.col-rank, .table-rank, .col-cap, .table-cap, .col-trend, .table-trend) { display: none; }
+    .crypto-table .col-coin { width: 40%; }
+    .crypto-table .col-price { width: 34%; }
+    .crypto-table .col-change { width: 26%; }
+    .crypto-table .table-coin, .crypto-table .col-coin { padding-left: 8px; }
+    .crypto-table .table-change, .crypto-table .col-change { padding-right: 8px; }
+    .coin-name-wrap { max-width: 100%; }
+    .coin-info { min-width: 0; }
 }

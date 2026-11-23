@@ -2,7 +2,7 @@ import { useContext, useState } from 'react'
 import { Link, NavLink, useSearchParams } from 'react-router-dom'
 import LockedFeatures from './LockedFeatures'
 import { AccountContext } from './AccountContext'
-import { CoinContext } from '../context/CoinContext'
+import { CoinContext } from '../context/CoinContext.js'
 import { client } from './client'
 import useQuotes from './useQuotes'
 import './personal.css'
@@ -24,8 +24,8 @@ export function MarketNav() {
   </nav>
 }
 
-function EntryForm({ kind, coins, initialCoin }) {
-  const { change, busy } = useContext(AccountContext)
+function EntryForm({ kind, coins, initialCoin, entry, onCancel }) {
+  const { user, change, busy, confirm } = useContext(AccountContext)
   const [coinId, setCoinId] = useState(initialCoin)
   const [error, setError] = useState('')
   const holding = kind === 'holding'
@@ -33,30 +33,40 @@ function EntryForm({ kind, coins, initialCoin }) {
     event.preventDefault()
     const form = event.currentTarget
     const fields = new FormData(form)
-    const coin = coins.find(c => c.id === coinId)
+    const coin = coins?.find(c => c.id === coinId)
     const price = Number(fields.get('price'))
     const quantity = Number(fields.get('quantity'))
-    if (!coin || !(price > 0 && price < 1e30) || (holding && !(quantity > 0 && quantity < 1e30))) {
+    if ((!entry && !coin) || !(price > 0 && price < 1e30) || (holding && !(quantity > 0 && quantity < 1e30))) {
       setError('Pilih koin dan masukkan angka positif yang valid.')
       return
     }
     setError('')
-    const entry = { kind, coin_id: coin.id, coin_name: coin.name, price }
-    if (holding) entry.quantity = quantity
-    else entry.direction = fields.get('direction')
-    const ok = await change(() => client.from('market_entries').insert(entry))
-    if (ok) { form.reset(); setCoinId(initialCoin) }
+    const values = holding ? { price, quantity } : { price, direction: fields.get('direction') }
+    const ok = await change(() => {
+      const records = client.from('market_entries')
+      return entry
+        ? records.update(values).eq('id', entry.id).eq('user_id', user.id).eq('kind', kind).select('id').single()
+        : records.insert({ kind, coin_id: coin.id, coin_name: coin.name, ...values })
+    })
+    if (!ok) return
+    confirm(entry ? 'Perubahan tersimpan.' : holding ? 'Pembelian dicatat.' : 'Peringatan dibuat.')
+    if (entry) onCancel()
+    else {
+      form.reset()
+      setCoinId(initialCoin)
+    }
   }
   return <form className="personal-form" onSubmit={submit}>
-    <label>Koin<select required value={coinId} onChange={e => setCoinId(e.target.value)}>
+    {!entry && <label>Koin<select required value={coinId} onChange={e => setCoinId(e.target.value)}>
       <option value="">Pilih koin</option>
       {coins.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-    </select></label>
-    {holding ? <label>Jumlah koin<input name="quantity" type="number" min="0" step="any" required /></label>
-      : <label>Beri tahu saat harga<select name="direction"><option value="below">Turun hingga</option><option value="above">Naik hingga</option></select></label>}
+    </select></label>}
+    {holding ? <label>Jumlah koin<input name="quantity" type="number" min="0" step="any" defaultValue={entry?.quantity} required /></label>
+      : <label>Beri tahu saat harga<select name="direction" defaultValue={entry?.direction}><option value="below">Turun hingga</option><option value="above">Naik hingga</option></select></label>}
     <label>{holding ? 'Harga beli per koin (Rp)' : 'Target harga (Rp)'}
-      <input name="price" type="number" step="any" min="0" required /></label>
-    <button disabled={busy}>{holding ? 'Catat pembelian' : 'Buat peringatan'}</button>
+      <input name="price" type="number" step="any" min="0" defaultValue={entry?.price} required /></label>
+    <button disabled={busy}>{entry ? 'Simpan perubahan' : holding ? 'Catat pembelian' : 'Buat peringatan'}</button>
+    {entry && <button type="button" className="remove-entry" disabled={busy} onClick={onCancel}>Batal</button>}
     {error && <p role="alert">{error}</p>}
   </form>
 }
@@ -65,6 +75,7 @@ export default function PersonalMarket({ kind }) {
   const { user, ready, entries, busy, remove } = useContext(AccountContext)
   const { allCoin, currency } = useContext(CoinContext)
   const [params] = useSearchParams()
+  const [editingId, setEditingId] = useState(null)
   const rows = entries.filter(row => row.kind === kind)
   const { quotes, failed } = useQuotes(kind === 'alert' ? [] : rows, currency.name)
   if (user === undefined) return <p className="personal">Memuat akun…</p>
@@ -102,7 +113,10 @@ export default function PersonalMarket({ kind }) {
             {kind === 'holding' && <p>{row.quantity.toLocaleString('id-ID', { maximumSignificantDigits: 15 })} koin × {money(row.price)} · Nilai sekarang {money(row.quantity * quote?.idr)}</p>}
           </div>
           {kind === 'watch' && <Link className="entry-action" to={'/saya/alert?coin=' + encodeURIComponent(row.coin_id)}>Atur peringatan</Link>}
+          {kind !== 'watch' && editingId !== row.id &&
+            <button className="edit-entry" disabled={busy} aria-label={'Edit ' + row.coin_name} onClick={() => setEditingId(row.id)}>Edit</button>}
           <button className="remove-entry" disabled={busy} aria-label={'Hapus ' + row.coin_name} onClick={() => remove(row.id)}>Hapus</button>
+          {editingId === row.id && <EntryForm kind={kind} entry={row} onCancel={() => setEditingId(null)} />}
         </li>
       })}</ul>
     </>}

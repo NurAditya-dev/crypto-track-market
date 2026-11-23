@@ -1,178 +1,137 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import './Home.css'
 import LockedFeatures from '../../account/LockedFeatures'
 import { AccountContext } from '../../account/AccountContext'
-import { CoinContext } from '../../context/CoinContext'
+import { CoinContext } from '../../context/CoinContext.js'
+import useQuotes from '../../account/useQuotes'
+import { PriceStatus, Sparkline } from './MarketDetails'
+
+const columns = {
+  current_price: 'Harga',
+  price_change_percentage_24h: 'Perubahan 24 jam',
+  market_cap: 'Kapitalisasi pasar',
+}
+const filters = { all: 'Semua koin', gainers: 'Naik terbesar', losers: 'Turun terbesar', watch: 'Pantauan Saya' }
+const coinsPerPage = 10
+
+function comparePrices(a, b, field, ascending) {
+  if (!Number.isFinite(a[field])) return Number.isFinite(b[field]) ? 1 : 0
+  if (!Number.isFinite(b[field])) return -1
+  return ascending ? a[field] - b[field] : b[field] - a[field]
+}
+
+function matchesSearch(coin, query) {
+  return coin.name.toLowerCase().includes(query) || coin.symbol.toLowerCase().includes(query)
+}
+
+function formatPrice(price, currency) {
+  return Number.isFinite(price)
+    ? price.toLocaleString('id-ID', { style: 'currency', currency: currency.name, maximumFractionDigits: price < 1 ? 10 : 2 })
+    : '—'
+}
+
 
 const Home = () => {
   const { user, entries, ready, busy, toggleWatch } = useContext(AccountContext)
-  const { allCoin, currency } = useContext(CoinContext)
+  const { allCoin, currency, pricesLoading, pricesFailed, pricesUpdatedAt, reloadPrices } = useContext(CoinContext)
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [displayCoin, setDisplayCoin] = useState([])
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchTerm = searchParams.get('q') ?? ''
   const [isSuggestionOpen, setIsSuggestionOpen] = useState(false)
-  const [selectedCoinId, setSelectedCoinId] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
   const tableWrapRef = useRef(null)
+  const requestedFilter = searchParams.get('filter')
+  const filter = Object.hasOwn(filters, requestedFilter) && (requestedFilter !== 'watch' || user) ? requestedFilter : 'all'
+  const requestedSort = searchParams.get('sort')
+  const sort = Object.hasOwn(columns, requestedSort) ? requestedSort : ''
+  const changeField = 'price_change_percentage_24h'
+  const sortField = sort || (filter === 'gainers' || filter === 'losers' ? changeField : '')
+  const ascending = sort ? searchParams.get('order') === 'asc' : filter === 'losers'
+  const watched = entries.filter(row => row.kind === 'watch')
+  const watchedIds = new Set(watched.map(row => row.coin_id))
+  const loadedIds = new Set(allCoin.map(coin => coin.id))
+  const extraWatched = filter === 'watch' ? watched.filter(row => !loadedIds.has(row.coin_id)) : []
+  const { quotes } = useQuotes(extraWatched, currency.name)
+  const extras = extraWatched.map(row => ({
+    id: row.coin_id,
+    name: row.coin_name,
+    symbol: '',
+    current_price: quotes?.[row.coin_id]?.[currency.name],
+    price_change_percentage_24h: quotes?.[row.coin_id]?.[currency.name + '_24h_change'],
+  }))
+  const query = searchTerm.trim().toLowerCase()
+  const filtered = [...allCoin, ...extras].filter(coin => {
+    if (filter === 'watch' && !watchedIds.has(coin.id)) return false
+    if (filter === 'gainers' && !(coin[changeField] > 0)) return false
+    if (filter === 'losers' && !(coin[changeField] < 0)) return false
+    return matchesSearch(coin, query)
+  })
+  if (sortField) filtered.sort((a, b) => comparePrices(a, b, sortField, ascending))
 
-  const COINS_PER_PAGE = 10
-  const totalPages = Math.ceil(displayCoin.length / COINS_PER_PAGE) || 1
+  const totalPages = Math.max(1, Math.ceil(filtered.length / coinsPerPage))
+  const requestedPage = searchParams.get('page')
+  const currentPage = requestedPage === 'last' ? totalPages
+    : Math.min(totalPages, Math.max(1, Number.parseInt(requestedPage, 10) || 1))
+  const start = (currentPage - 1) * coinsPerPage
+  const paginatedCoin = filtered.slice(start, start + coinsPerPage)
+  const suggestions = isSuggestionOpen && query ? filtered.slice(0, 6) : []
+  const pendingData = filter === 'watch' ? !ready : pricesLoading && !pricesUpdatedAt
+  const emptyMessage = pendingData ? 'Memuat koin…' : pricesFailed && filter !== 'watch' && !pricesUpdatedAt
+    ? 'Daftar koin belum tersedia.' : filter === 'watch' && !watched.length
+      ? 'Belum ada koin di Pantauan Saya.' : 'Koin tidak ditemukan.'
 
-  const paginatedCoin = useMemo(() => {
-    const startIndex = (currentPage - 1) * COINS_PER_PAGE
-    return displayCoin.slice(startIndex, startIndex + COINS_PER_PAGE)
-  }, [displayCoin, currentPage])
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage)
-      if (tableWrapRef.current) {
-        tableWrapRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-      }
+  function updateParams(patch, replace = false) {
+    const next = new URLSearchParams(searchParams)
+    for (const [key, value] of Object.entries(patch)) {
+      if (value) next.set(key, value)
+      else next.delete(key)
     }
+    setSearchParams(next, { replace, preventScrollReset: true })
   }
 
-  const formatMarketCap = (num, symbol) => {
-    if (!num) return `${symbol}0`
-    if (num >= 1e15) return `${symbol}${(num / 1e15).toFixed(2)}Q`
-    if (num >= 1e12) return `${symbol}${(num / 1e12).toFixed(2)}T`
-    if (num >= 1e9) return `${symbol}${(num / 1e9).toFixed(2)}B`
-    if (num >= 1e6) return `${symbol}${(num / 1e6).toFixed(2)}M`
-    return `${symbol}${num.toLocaleString()}`
+  function handlePageChange(page) {
+    updateParams({ page: page > 1 ? page : '' })
+    tableWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
 
-  const matchesCoinSearch = (coin, value) => {
-    const term = value.trim().toLowerCase()
-
-    if (!term) return true
-
-    const coinName = coin.name.toLowerCase()
-    const coinSymbol = coin.symbol.toLowerCase()
-
-    return coinName.includes(term) || coinSymbol.includes(term)
+  function handleSort(field, direction) {
+    updateParams({ sort: field, order: direction, page: '' })
   }
 
-  const filterBySearchTerm = (value) => {
-    const term = value.trim().toLowerCase()
+  function handleSearchChange(value) {
+    setIsSuggestionOpen(Boolean(value.trim()))
+    updateParams({ q: value, page: '' }, true)
+  }
 
-    if (!term) {
-      return allCoin
+  function coinLink(id) {
+    const params = new URLSearchParams({ from: currentPage })
+    for (const key of ['q', 'filter', 'sort', 'order']) {
+      if (searchParams.has(key)) params.set(key, searchParams.get(key))
     }
-
-    return allCoin.filter((coin) => matchesCoinSearch(coin, term))
+    return '/coin/' + encodeURIComponent(id) + '?' + params
   }
 
   useEffect(() => {
-    setCurrentPage(1)
-    if (!searchTerm.trim()) {
-      setSelectedCoinId(null)
-      setDisplayCoin(allCoin)
-      return
-    }
-
-    if (selectedCoinId) {
-      const selected = allCoin.find((coin) => coin.id === selectedCoinId)
-
-      if (selected && selected.name.toLowerCase() === searchTerm.trim().toLowerCase()) {
-        setDisplayCoin([selected])
-        return
-      }
-    }
-
-    const filtered = filterBySearchTerm(searchTerm)
-    setDisplayCoin(filtered)
-  }, [allCoin, searchTerm, selectedCoinId])
-
-  // Handle navigation to first/last page via query param
-  useEffect(() => {
-    const pageParam = searchParams.get('page')
-    if (pageParam === 'last' && totalPages > 1) {
-      setCurrentPage(totalPages)
-      if (tableWrapRef.current) {
-        tableWrapRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-      }
-    } else if (pageParam) {
-      const pageNum = parseInt(pageParam, 10)
-      if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
-        setCurrentPage(pageNum)
-        if (tableWrapRef.current) {
-          tableWrapRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-        }
-      }
-    }
-  }, [searchParams, totalPages])
-
-  // Reset to initial home state when logo is clicked
-  useEffect(() => {
-    const handleResetHome = () => {
-      setSelectedCoinId(null)
-      setSearchTerm('')
+    const resetHome = () => {
       setIsSuggestionOpen(false)
-      setDisplayCoin(allCoin)
-      setCurrentPage(1)
-      if (tableWrapRef.current) {
-        tableWrapRef.current.scrollTo({ top: 0, behavior: 'smooth' })
-      }
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-
-    window.addEventListener('reset-crypto-home', handleResetHome)
-    return () => {
-      window.removeEventListener('reset-crypto-home', handleResetHome)
-    }
-  }, [allCoin])
-
-  const suggestions = useMemo(() => {
-    if (!searchTerm.trim() || !isSuggestionOpen) return []
-
-    return allCoin.filter((coin) => matchesCoinSearch(coin, searchTerm)).slice(0, 6)
-  }, [allCoin, searchTerm, isSuggestionOpen])
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault()
-    setCurrentPage(1)
-
-    if (!searchTerm.trim()) {
-      setSelectedCoinId(null)
-      setDisplayCoin(allCoin)
-      return
-    }
-
-    const filtered = filterBySearchTerm(searchTerm)
-    setSelectedCoinId(null)
-    setDisplayCoin(filtered)
-    setIsSuggestionOpen(false)
-    if (tableWrapRef.current) {
-      tableWrapRef.current.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }
-
-  const handleSuggestionClick = (id) => {
-    setIsSuggestionOpen(false)
-    navigate(`/coin/${id}?from=${currentPage}`)
-  }
-
-  const handleSearchChange = (value) => {
-    const trimmedValue = value
-    setSelectedCoinId(null)
-    setSearchTerm(trimmedValue)
-    setCurrentPage(1)
-    setIsSuggestionOpen(trimmedValue.trim().length > 0)
-  }
-
-  const shouldShowSuggestions = isSuggestionOpen && searchTerm.trim() && suggestions.length > 0
-  const shouldShowNoSuggestionState = isSuggestionOpen && searchTerm.trim() && suggestions.length === 0
+    window.addEventListener('reset-crypto-home', resetHome)
+    return () => window.removeEventListener('reset-crypto-home', resetHome)
+  }, [])
 
   return (
     <div className='home'>
       <div className='hero'>
-        <h1>Pantau harga<br />kripto</h1>
+        <h1>Pantau harga kripto</h1>
         <p>
           Cari koin dan lihat harga, perubahan 24 jam, serta kapitalisasi pasarnya.
         </p>
-        <form className='search-form' onSubmit={handleSearchSubmit}>
+        <form className='search-form' onSubmit={event => {
+          event.preventDefault()
+          setIsSuggestionOpen(false)
+          tableWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }}>
           <div className='search-wrapper'>
             <div className='search-input-box'>
               <input
@@ -186,38 +145,33 @@ const Home = () => {
                 <button
                   type='button'
                   className='clear-search'
-                  onClick={() => {
-                    setSelectedCoinId(null)
-                    setSearchTerm('')
-                    setIsSuggestionOpen(false)
-                    setDisplayCoin(allCoin)
-                    setCurrentPage(1)
-                  }}
+                  aria-label='Hapus pencarian'
+                  onClick={() => handleSearchChange('')}
                 >
                   ×
                 </button>
               )}
             </div>
 
-            {shouldShowSuggestions && (
+            {suggestions.length > 0 && (
               <div className='suggestion-box'>
                 {suggestions.map((coin) => (
                   <button
                     type='button'
                     key={coin.id}
                     className='suggestion-item'
-                    onClick={() => handleSuggestionClick(coin.id)}
+                    onClick={() => navigate(coinLink(coin.id))}
                   >
-                    <img src={coin.image} alt={coin.name} className='coin-image' />
+                    {coin.image && <img src={coin.image} alt='' className='coin-image' />}
                     <span>
-                      {coin.name} ({coin.symbol.toUpperCase()})
+                      {coin.name}{coin.symbol && ' (' + coin.symbol.toUpperCase() + ')'}
                     </span>
                   </button>
                 ))}
               </div>
             )}
 
-            {shouldShowNoSuggestionState && (
+            {isSuggestionOpen && query && !pendingData && !pricesFailed && !suggestions.length && (
               <div className='suggestion-box'>
                 <div className='suggestion-item no-suggestion'>Koin tidak ditemukan</div>
               </div>
@@ -227,64 +181,86 @@ const Home = () => {
         </form>
       </div>
 
-      {user === null && <LockedFeatures />}
+      <div className='market-controls'>
+        <PriceStatus updatedAt={pricesUpdatedAt} loading={pricesLoading} failed={pricesFailed} onReload={reloadPrices} />
+        <div className='market-filters' role='group' aria-label='Filter koin'>
+          {Object.entries(filters).filter(([id]) => id !== 'watch' || user).map(([id, label]) =>
+            <button type='button' key={id} aria-pressed={filter === id}
+              onClick={() => { setIsSuggestionOpen(false); updateParams({ filter: id === 'all' ? '' : id, sort: '', order: '', page: '' }) }}>
+              {label}
+            </button>)}
+        </div>
+        <label className='mobile-sort'>Urutkan
+          <select value={sortField ? sortField + ':' + (ascending ? 'asc' : 'desc') : ''} onChange={event => {
+            const [field, direction] = event.target.value.split(':')
+            handleSort(field, direction)
+          }}>
+            {filter !== 'gainers' && filter !== 'losers' && <option value=''>Peringkat pasar</option>}
+            {Object.entries(columns).flatMap(([field, label]) => [
+              <option key={field + ':desc'} value={field + ':desc'}>{label} tertinggi</option>,
+              <option key={field + ':asc'} value={field + ':asc'}>{label} terendah</option>,
+            ])}
+          </select>
+        </label>
+      </div>
       <div className='crypto-table-wrap' ref={tableWrapRef}>
         <table className='crypto-table'>
           <thead>
             <tr>
               <th className='col-rank'>#</th>
               <th className='col-coin'>Koin</th>
-              <th className='col-price'>Harga</th>
-              <th className='col-change'>
-                <span className='header-desktop'>Perubahan 24 jam</span>
-                <span className='header-mobile'>24 jam</span>
-              </th>
-              <th className='col-cap'>
-                <span className='header-desktop'>Kapitalisasi pasar</span>
-                <span className='header-mobile'>Kap. pasar</span>
-              </th>
+              {Object.entries(columns).map(([field, label], index) =>
+                <th key={field} scope='col' className={['col-price', 'col-change', 'col-cap'][index]}
+                  aria-sort={sortField === field ? ascending ? 'ascending' : 'descending' : undefined}>
+                  <button type='button' className='sort-header'
+                    onClick={() => handleSort(field, sortField === field && !ascending ? 'asc' : 'desc')}>
+                    <span className={index === 1 ? 'header-desktop' : undefined}>{label}</span>
+                    {index === 1 && <span className='header-mobile'>24 jam</span>}
+                    <span aria-hidden='true' className='sort-arrow'>{sortField === field ? ascending ? '↑' : '↓' : '↕'}</span>
+                  </button>
+                </th>)}
+              <th className='col-trend' scope='col'>7 hari</th>
             </tr>
           </thead>
           <tbody>
             {paginatedCoin.length > 0 ? (
-              paginatedCoin.map((coin, index) => {
-                const globalIndex = (currentPage - 1) * COINS_PER_PAGE + index + 1
+              paginatedCoin.map(coin => {
+                const change = coin.price_change_percentage_24h
+                const detailUrl = coinLink(coin.id)
                 return (
                   <tr
-                    key={`${coin.id}-${coin.market_cap_rank || globalIndex}`}
-                    onClick={() => navigate(`/coin/${coin.id}?from=${currentPage}`)}
+                    key={coin.id}
+                    onClick={() => navigate(detailUrl)}
                     className='crypto-table-row'
                   >
-                    <td className='table-rank'>{coin.market_cap_rank || globalIndex}</td>
+                    <td className='table-rank'>{coin.market_cap_rank ?? '—'}</td>
                     <td className='table-coin'>
                       <div className='coin-info'>
                         <button className="watch-star" type="button" aria-label={`Pantau ${coin.name}`}
-                          aria-pressed={entries.some(row => row.kind === 'watch' && row.coin_id === coin.id)}
+                          aria-pressed={watchedIds.has(coin.id)}
                           disabled={user === undefined || (user && !ready) || busy}
                           onClick={e => { e.stopPropagation(); toggleWatch(coin) }}>
-                          {entries.some(row => row.kind === 'watch' && row.coin_id === coin.id) ? '★' : '☆'}
+                          {watchedIds.has(coin.id) ? '★' : '☆'}
                         </button>
-                        <img src={coin.image} alt={coin.name} className='coin-image' />
-                        <div className='coin-name-wrap'>
+                        {coin.image && <img src={coin.image} alt='' className='coin-image' />}
+                        <Link className='coin-name-wrap' to={detailUrl} onClick={event => event.stopPropagation()}>
                           <span className='coin-name'>{coin.name}</span>
-                          <span className='coin-symbol'>{coin.symbol.toUpperCase()}</span>
-                        </div>
+                          {coin.symbol && <span className='coin-symbol'>{coin.symbol.toUpperCase()}</span>}
+                        </Link>
                       </div>
                     </td>
-                    <td className='table-price'>{currency.symbol}{coin.current_price.toLocaleString()}</td>
-                    <td className={`table-change ${coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
-                      {coin.price_change_percentage_24h >= 0 ? '+' : ''}{coin.price_change_percentage_24h?.toFixed(2) ?? '0.00'}%
+                    <td className='table-price'>{formatPrice(coin.current_price, currency)}</td>
+                    <td className={`table-change ${Number.isFinite(change) ? change >= 0 ? 'positive' : 'negative' : ''}`}>
+                      {Number.isFinite(change) ? `${change > 0 ? '+' : ''}${change.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%` : '—'}
                     </td>
-                    <td className='table-cap'>
-                      <span className='cap-desktop'>{currency.symbol}{coin.market_cap.toLocaleString()}</span>
-                      <span className='cap-mobile'>{formatMarketCap(coin.market_cap, currency.symbol)}</span>
-                    </td>
+                    <td className='table-cap'>{formatPrice(coin.market_cap, currency)}</td>
+                    <td className='table-trend'><Sparkline prices={coin.sparkline_in_7d?.price} /></td>
                   </tr>
                 )
               })
             ) : (
               <tr>
-                <td colSpan='5' className='no-results'>Koin tidak ditemukan</td>
+                <td colSpan='6' className='no-results'>{emptyMessage}</td>
               </tr>
             )}
           </tbody>
@@ -335,6 +311,7 @@ const Home = () => {
           </button>
         </div>
       )}
+      {user === null && <LockedFeatures />}
     </div>
   )
 }

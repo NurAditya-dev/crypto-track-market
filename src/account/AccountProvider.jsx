@@ -42,6 +42,7 @@ function AccountData({ user, children }) {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [notification, setNotification] = useState('')
+  const [confirmation, setConfirmation] = useState(null)
   const pendingAlerts = useRef(new Set())
   const [loginCoin, setLoginCoin] = useState(null)
   const dismissLoginPrompt = useCallback(() => setLoginCoin(null), [])
@@ -117,14 +118,28 @@ function AccountData({ user, children }) {
     }
   }, [refresh, userId])
 
-  const addWatch = useCallback((coin) => change(async () => {
-    const result = await client.from('market_entries').insert({
-      kind: 'watch', coin_id: coin.id, coin_name: coin.name,
-    })
-    return result.error?.code === '23505' ? {} : result
-  }), [change])
+  const confirm = useCallback(text => setConfirmation({ text }), [])
+  useEffect(() => {
+    if (!confirmation) return
+    const timer = setTimeout(() => setConfirmation(null), 4500)
+    return () => clearTimeout(timer)
+  }, [confirmation])
 
-  const remove = (id) => change(() => client.from('market_entries').delete().eq('id', id).eq('user_id', userId))
+  async function addWatch(coin) {
+    const saved = await change(async () => {
+      const result = await client.from('market_entries').insert({
+        kind: 'watch', coin_id: coin.id, coin_name: coin.name,
+      })
+      return result.error?.code === '23505' ? {} : result
+    })
+    if (saved) confirm(coin.name + ' ditambahkan ke pantauan.')
+  }
+
+  async function remove(id) {
+    const saved = await change(() => client.from('market_entries').delete().eq('id', id).eq('user_id', userId))
+    if (saved) confirm('Catatan dihapus.')
+    return saved
+  }
   function toggleWatch(coin) {
     if (!user) { setLoginCoin({ id: coin.id, name: coin.name }); return }
     const saved = entries.find(row => row.kind === 'watch' && row.coin_id === coin.id)
@@ -140,12 +155,14 @@ function AccountData({ user, children }) {
     setLoginCoin(null)
   }
 
-  return <AccountContext.Provider value={{ user, entries, ready, busy, refresh, change, remove, toggleWatch }}>
+  return <AccountContext.Provider value={{ user, entries, ready, busy, refresh, change, remove, toggleWatch, confirm }}>
     {children}
     {notification && !message && !loginCoin && <div className="account-notice" role="status">
       {notification} <button onClick={() => setNotification('')}>Tutup</button>
     </div>}
     {loginCoin && <WatchLoginPrompt coin={loginCoin} onLogin={continueLogin} onDismiss={dismissLoginPrompt} />}
+    {confirmation && !notification && !message && !loginCoin &&
+      <div className="account-notice" role="status">{confirmation.text}</div>}
     {message && <div className="account-notice" role="alert">{message}
       <button onClick={() => { setMessage(''); void refresh() }}>Tutup</button>
     </div>}

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Chart } from 'react-google-charts'
-import { CoinContext } from '../../context/CoinContext'
+import { CoinContext } from '../../context/CoinContext.js'
 import './Coin.css'
 
 const Coin = () => {
@@ -28,7 +28,10 @@ const Coin = () => {
 
   const handleBackToCoinSection = () => {
     if (returnPage && !Number.isNaN(Number(returnPage))) {
-      navigate(`/?page=${returnPage}`)
+      const params = new URLSearchParams(searchParams)
+      params.delete('from')
+      params.set('page', returnPage)
+      navigate('/?' + params)
       return
     }
 

@@ -49,6 +49,9 @@
 .entry-main .hit { color: #6ee7b7; font-size: .87rem; }
 .entry-action, .personal-empty a { color: #7dd3fc; }
 .personal-empty a { text-decoration: underline; }
+.edit-entry { background: #223955; color: #dbeafe; }
+.entry-list .personal-form { flex: 1 0 100%; }
+.personal-form button.remove-entry { background: #1e293b; color: #e2e8f0; }
 .remove-entry, .account-notice button { background: #1e293b; color: #e2e8f0; }
 .watch-star { border: 0; cursor: pointer; background: transparent; color: #cbd5e1; font-size: 1.35rem; padding: 3px; line-height: 1; }
 .watch-star[aria-pressed="true"] { color: #fbbf24; }
