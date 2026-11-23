@@ -3,6 +3,28 @@ import { AccountContext } from './AccountContext'
 import { client, login } from './client'
 
 const pendingKey = 'market.pendingWatch'
+const loginPromptTimeout = 5000
+
+function WatchLoginPrompt({ coin, onLogin, onDismiss }) {
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+
+  useEffect(() => {
+    if (hovered || focused) return
+    const timer = setTimeout(onDismiss, loginPromptTimeout)
+    return () => clearTimeout(timer)
+  }, [coin, hovered, focused, onDismiss])
+
+  return <div className="account-notice" role="dialog" aria-label="Simpan koin"
+    onPointerEnter={event => setHovered(event.pointerType === 'mouse')}
+    onPointerLeave={() => setHovered(false)}
+    onFocus={() => setFocused(true)}
+    onBlur={event => setFocused(event.currentTarget.contains(event.relatedTarget))}>
+    <p>Masuk untuk menyimpan {coin.name} ke Pantauan Saya.</p>
+    <button onClick={onLogin}>Masuk dengan Google</button>
+    <button onClick={onDismiss}>Batal</button>
+  </div>
+}
 
 export default function AccountProvider({ children }) {
   const [user, setUser] = useState(client ? undefined : null)
@@ -22,6 +44,7 @@ function AccountData({ user, children }) {
   const [notification, setNotification] = useState('')
   const pendingAlerts = useRef(new Set())
   const [loginCoin, setLoginCoin] = useState(null)
+  const dismissLoginPrompt = useCallback(() => setLoginCoin(null), [])
   const lock = useRef(false)
   const revision = useRef(0)
   const userId = user?.id
@@ -103,7 +126,7 @@ function AccountData({ user, children }) {
 
   const remove = (id) => change(() => client.from('market_entries').delete().eq('id', id).eq('user_id', userId))
   function toggleWatch(coin) {
-    if (!user) { setLoginCoin(coin); return }
+    if (!user) { setLoginCoin({ id: coin.id, name: coin.name }); return }
     const saved = entries.find(row => row.kind === 'watch' && row.coin_id === coin.id)
     return saved ? remove(saved.id) : addWatch(coin)
   }
@@ -122,11 +145,7 @@ function AccountData({ user, children }) {
     {notification && !message && !loginCoin && <div className="account-notice" role="status">
       {notification} <button onClick={() => setNotification('')}>Tutup</button>
     </div>}
-    {loginCoin && <div className="account-notice" role="dialog" aria-label="Simpan koin">
-      <p>Masuk untuk menyimpan {loginCoin.name} ke Pantauan Saya.</p>
-      <button onClick={continueLogin}>Masuk dengan Google</button>
-      <button onClick={() => setLoginCoin(null)}>Batal</button>
-    </div>}
+    {loginCoin && <WatchLoginPrompt coin={loginCoin} onLogin={continueLogin} onDismiss={dismissLoginPrompt} />}
     {message && <div className="account-notice" role="alert">{message}
       <button onClick={() => { setMessage(''); void refresh() }}>Tutup</button>
     </div>}
