@@ -26,7 +26,6 @@ credentials.*
 .env.local
 vercel.json
 package-lock.json
-supabase
 
 # Editor directories and files
 .vscode/*
