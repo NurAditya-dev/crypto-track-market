@@ -1,3 +1,6 @@
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+
 @font-face {
   font-family: 'Geist Variable';
   font-style: normal;
@@ -8,67 +11,68 @@
 
 :root {
   color-scheme: dark;
-  --base: #09090f;
-  --surface: #111119;
-  --raised: #191824;
-  --line: #2c2a39;
-  --muted: #aaa7ba;
-  --text: #f3f0fc;
-  --violet: #beabff;
-  --mint: #62dfb4;
-  --crimson: #ff8196;
-  --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --base: #0A0B0D;
+  --surface: #121418;
+  --raised: #1a1c20;
+  --line: #303236;
+  --muted: #abacaf;
+  --text: #F4F4F6;
+  --gold: #D4AF37;
+  --champagne: #e4cd91;
+  --gold-line: #6b5936;
+  --active: #262319;
+  --mint: #2EBD85;
+  --coral: #F6465D;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
   --shell: min(1280px, calc(100% - clamp(32px, 8vw, 128px)));
   font-family: 'Geist Variable', 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
   background: var(--base);
   color: var(--text);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scrollbar-color: #464151 var(--base); }
+html { scrollbar-color: #464646 var(--base); }
 body { min-width: 280px; }
 button, select, input { font: inherit; }
 button, select { cursor: pointer; }
 button:disabled { cursor: default; opacity: .55; }
 a { color: inherit; text-decoration: none; }
-button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid #d3c3ff; outline-offset: 3px; }
-::selection { background: #67509e; color: white; }
-.app { min-height: 100svh; background: radial-gradient(ellipse 80% 600px at 78% 7%, #1b152a60, transparent 85%), var(--base); }
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 2px solid var(--champagne); outline-offset: 3px;
+}
+::selection { background: #665535; color: white; }
+.app { min-height: 100svh; background: var(--base); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .positive { color: var(--mint); }
-.negative { color: var(--crimson); }
+.negative { color: var(--coral); }
+
 .glass-button {
-  --button-face: #1a1922d9;
   position: relative; isolation: isolate; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 38px; padding: 0 15px; border-radius: 9px;
-  border: 1px solid transparent; color: #d0ccdd;
-  background: linear-gradient(120deg, var(--button-face), var(--button-face)) padding-box,
-    linear-gradient(110deg, #413c50, #2a2835, #413c50) border-box;
-  background-size: 100% 100%, 220% 100%;
-  backdrop-filter: blur(6px);
-  font-size: .83rem; font-weight: 560; white-space: nowrap;
-  transition: box-shadow .2s, color .2s, background-position .55s;
+  min-height: 38px; padding: 0 15px; border-radius: 6px;
+  border: 1px solid #ffffff25; color: #dbdcde;
+  background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(6px);
+  box-shadow: inset 0 1px #ffffff08;
+  font-size: .83rem; font-weight: 550; white-space: nowrap;
+  transition: box-shadow .2s, border-color .2s, color .2s, transform .15s;
 }
 .glass-button.primary {
-  --button-face: #bea7ff;
-  background-image: linear-gradient(115deg, #d4c0ff, #b49afa), linear-gradient(100deg,#efe6ff,#ab8ee7);
-  color: #201331; font-weight: 720;
+  color: var(--champagne); border-color: #8e7645;
+  background: linear-gradient(115deg,#d4af3718,#ffffff0a 60%,#d4af3712);
 }
 .glass-button::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, #ffffff35 50%, transparent 70%);
-  transform: translateX(-115%); opacity: 0;
+  background: linear-gradient(110deg,transparent 30%,#f5e6c72d 50%,transparent 70%);
+  transform: translateX(-120%); opacity: 0;
 }
 @media (hover: hover) {
   .glass-button:not(:disabled):hover {
-    color: #fff;
-    background-image: linear-gradient(120deg,var(--button-face),var(--button-face)), linear-gradient(110deg,#64547e,#d5bbff,#8975ff,#504257);
-    background-position: 0 0, 100% 0; box-shadow: 0 0 16px #ac7cff29;
+    color: #fff5de; border-color: #b99c61; box-shadow: inset 0 1px #fff4d932, 0 1px 12px #d4af3712;
   }
-  .glass-button.primary:not(:disabled):hover { color: #201331; }
-  .glass-button:not(:disabled):hover::after { animation: button-shimmer .62s ease-out; }
+  .glass-button:not(:disabled):hover::after { animation: metal-sweep .64s ease-out; }
 }
-@keyframes button-shimmer { 0% {opacity: 0;} 25% {opacity: 1;} 100% {opacity: 0; transform: translateX(115%);} }
+.glass-button:not(:disabled):active { transform: translateY(1px); }
+@keyframes metal-sweep { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; transform: translateX(120%); } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

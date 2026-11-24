@@ -1,16 +1,16 @@
-.navbar { position: relative; z-index: 25; background: #0d0c13ed; border-bottom: 1px solid var(--line); }
+.navbar { position: relative; z-index: 25; background: #0d0f11f5; border-bottom: 1px solid var(--line); }
 .nav-inner { width: var(--shell); min-height: 70px; margin: auto; display: flex; align-items: center; gap: clamp(18px, 4vw, 68px); }
 .logo-link { display: inline-flex; align-items: center; gap: 9px; font-weight: 680; font-size: 1.32rem; letter-spacing: -.055em; }
-.logo-link img { display: block; width: 31px; height: 31px; }
+.logo-link img { display: block; width: clamp(110px, 12vw, 150px); height: auto; }
 .market-nav { display: flex; align-self: stretch; align-items: stretch; gap: clamp(10px, 2vw, 30px); }
 .market-nav a { position: relative; display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .85rem; white-space: nowrap; }
 .market-nav a:hover { color: var(--text); }
-.market-nav a.active { color: #d5c3ff; }
-.market-nav a.active::after { content: ''; position: absolute; inset: auto 0 -1px; height: 2px; background: #b795ff; }
-.market-nav a span { padding: 1px 5px; border-radius: 5px; background: #39294f; }
+.market-nav a.active { color: var(--champagne); }
+.market-nav a.active::after { content: ''; position: absolute; inset: auto 0 -1px; height: 2px; background: var(--gold); }
+.market-nav a span { padding: 1px 5px; border-radius: 5px; background: var(--active); }
 .nav-right, .google-login { display: flex; align-items: center; gap: 10px; }
 .nav-right { margin-left: auto; }
-.currency-select, .mobile-sort select { border: 1px solid var(--line); border-radius: 8px; color: #e6e2ef; background: #18171f; padding: 9px 8px; font-size: .8rem; }
+.currency-select, .mobile-sort select { border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: var(--surface); padding: 9px 8px; font-size: .8rem; }
 .account-name { max-width: 10ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
 .google-login { position: relative; }
 .login-message { position: absolute; right: 0; top: calc(100% + 6px); width: max-content; max-width: min(285px,85vw); padding: 10px; border: 1px solid var(--line); background: var(--raised); color: var(--text); border-radius: 8px; }
@@ -24,7 +24,7 @@
 }
 @media (max-width: 365px) {
   .logo-link { font-size: 1.12rem; gap: 5px; }
-  .logo-link img { width: 25px; height: 25px; }
+  .logo-link img { width: 104px; }
   .nav-right .signup-btn svg { display: none; }
   .market-nav { min-width: 0; }
 }

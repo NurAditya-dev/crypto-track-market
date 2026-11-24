@@ -2,11 +2,11 @@
 .personal h1 { font-size: clamp(2.1rem,4.5vw,3.7rem); font-weight: 570; line-height: 1.05; letter-spacing: -.06em; }
 .personal p,.personal small { color: var(--muted); line-height: 1.6; }
 .personal-form,.personal-empty,.entry-list li,.portfolio-summary > div,.account-notice {
-  background: linear-gradient(115deg,#1d1925,#14121b); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  background: linear-gradient(115deg,#191b1e,var(--surface)); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
 }
 .personal-form,.entry-list li { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
-.personal-form label { min-width: 0; flex: 1 1 170px; display: grid; gap: 7px; font-size: .85rem; color: #d5cfdf; }
-.personal-form input,.personal-form select { width: 100%; min-width: 0; padding: 10px; background: #100f17; color: var(--text); border: 1px solid #494153; border-radius: 8px; }
+.personal-form label { min-width: 0; flex: 1 1 170px; display: grid; gap: 7px; font-size: .85rem; color: #d6d7d8; }
+.personal-form input,.personal-form select { width: 100%; min-width: 0; padding: 10px; background: #0e1012; color: var(--text); border: 1px solid #47494a; border-radius: 8px; }
 .personal-empty { color: var(--muted); }
 .portfolio-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(175px,100%),1fr)); gap: 12px; }
 .portfolio-summary strong,.portfolio-summary small { display: block; overflow-wrap: anywhere; }
@@ -15,23 +15,23 @@
 .entry-list li { align-items: center; }
 .entry-main { flex: 1 1 210px; min-width: 0; overflow-wrap: anywhere; }
 .entry-main > a { font-weight: 650; }
-.entry-main p { font-variant-numeric: tabular-nums; }
+.entry-main p, .personal-form input[type=number] { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .entry-main .hit { color: var(--mint); font-size: .87rem; }
-.entry-action,.personal-empty a { color: var(--violet); text-decoration: underline; text-underline-offset: 3px; }
+.entry-action,.personal-empty a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
 .entry-list .personal-form { flex: 1 0 100%; min-width: 0; }
 .edit-entry,.remove-entry,.account-notice button:not(.glass-button) {
-  padding: 8px 12px; border-radius: 8px; color: var(--text); background: var(--raised); border: 1px solid #50455d; font-size: .84rem;
+  padding: 8px 12px; border-radius: 8px; color: var(--text); background: var(--raised); border: 1px solid #4c4d4d; font-size: .84rem;
 }
-.edit-entry { color: #dbc5ff; }
+.edit-entry { color: var(--champagne); }
 .account-notice { position: fixed; bottom: 18px; right: 16px; max-width: min(420px,calc(100vw - 32px)); z-index: 60; color: var(--text); box-shadow: 0 8px 32px #0009; }
 .account-notice p { margin-bottom: 9px; }
 .account-notice button { margin-right: 6px; }
-.locked-features { display: grid; isolation: isolate; overflow: hidden; border: 1px solid #393143; border-radius: 15px; background: #15121b; }
+.locked-features { display: grid; isolation: isolate; overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
 .locked-preview,.feature-gate { grid-area: 1/1; }
 .locked-preview { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 12px; padding: 16px; filter: blur(3px); opacity: .5; user-select: none; pointer-events: none; }
-.preview-card { border: 1px solid #493d56; border-radius: 10px; background: #231d2b; padding: 15px; }
+.preview-card { border: 1px solid #41413f; border-radius: 10px; background: var(--raised); padding: 15px; }
 .preview-line { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: var(--muted); }
-.feature-gate { position: relative; display: grid; place-items: center; align-content: center; gap: 10px; padding: 20px; text-align: center; background: linear-gradient(90deg,transparent,#17121ef5 50%,transparent); }
+.feature-gate { position: relative; display: grid; place-items: center; align-content: center; gap: 10px; padding: 20px; text-align: center; background: linear-gradient(90deg,transparent,#121418f5 50%,transparent); }
 .feature-gate .google-login { flex-direction: column; }
 .feature-gate .login-message { position: static; }
 @media(max-width: 600px) { .personal-form { align-items: stretch; } .personal-form label { flex-basis: 100%; } }

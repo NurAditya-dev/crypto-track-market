@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import './Navbar.css'
 import GoogleLogin from './GoogleLogin'
+import logo from '../../assets/logo.png'
 import { CoinContext } from '../../context/CoinContext.js'
 import { Link } from 'react-router-dom'
 
@@ -15,7 +16,7 @@ const Navbar = ({ children }) => {
     <header className='navbar'>
      <div className='nav-inner'>
       <Link to='/' onClick={handleLogoClick} className='logo-link'>
-        <img src='/favicon.svg' alt='' />Cryptoplace
+        <img src={logo} alt='Cryptoplace' />
       </Link>
       {children}
       <div className='nav-right'>

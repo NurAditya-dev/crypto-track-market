@@ -262,7 +262,8 @@ const Coin = () => {
   const chartOptions = {
     legend: 'none',
     backgroundColor: 'transparent',
-    colors: [isTfPositive ? '#10b981' : '#f87171'],
+    fontName: 'IBM Plex Mono',
+    colors: [isTfPositive ? '#2EBD85' : '#F6465D'],
     chartArea: { width: '92%', height: '75%', top: 20, bottom: 40 },
     hAxis: {
       textStyle: { color: '#94a3b8', fontSize: 11 },
@@ -336,7 +337,7 @@ const Coin = () => {
               <button
                 key={tf.value}
                 type='button'
-                className={`timeframe-btn ${days === tf.value ? 'active' : ''}`}
+                className={`glass-button timeframe-btn ${days === tf.value ? 'active' : ''}`}
                 onClick={() => setDays(tf.value)}
               >
                 {tf.label}
