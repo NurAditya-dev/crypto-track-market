@@ -133,11 +133,11 @@ export function createCoin(model) {
   return { face, points, metal }
 }
 
-export function createTerrain() {
-  const field = document.createElement('canvas')
+export function createTerrain(field) {
   field.width = 880
   field.height = 390
   const ctx = field.getContext('2d')
+  if (!ctx) return
   ctx.scale(1.25,1.25)
   ctx.translate(352,150)
   for (let row = 0; row < 32; row++) {
@@ -157,16 +157,14 @@ export function createTerrain() {
     ctx.fillStyle = i % 5 === 0 ? '#d9c18787' : '#d7d4c540'
     ctx.fillRect((i * 137 % 680)-340,(i * 71 % 260)-125,i % 5 ? .8 : 1.3,1)
   }
-  return field
 }
 
-export function drawCoinScene(ctx, width, height, coin, terrain, time, pointer, opacity) {
+export function drawCoinScene(ctx, width, height, coin, angle, time, pointer, opacity) {
   ctx.clearRect(0,0,width,height)
   ctx.save()
   ctx.translate(width * .5, height * .51)
   const scale = Math.min(width / 370, height / 222)
   ctx.scale(scale,scale)
-  ctx.drawImage(terrain,-350 + pointer.x * 2,-151 + pointer.y * 2,704,312)
   ctx.save()
   ctx.translate(0,83)
   ctx.scale(1,.16)
@@ -179,7 +177,7 @@ export function drawCoinScene(ctx, width, height, coin, terrain, time, pointer, 
 
   ctx.globalAlpha = opacity
   ctx.translate(pointer.x * 5, -4 + pointer.y * 3 + Math.sin(time * .58) * 2.2)
-  const yaw = -.47 + .15 * Math.sin(time * .34) + pointer.x * .13
+  const yaw = angle - .47 + .15 * Math.sin(time * .34) + pointer.x * .13
   const pitch = .17 + .055 * Math.sin(time * .21) + pointer.y * .065
   const roll = -.13
   const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch)
@@ -201,7 +199,8 @@ export function drawCoinScene(ctx, width, height, coin, terrain, time, pointer, 
     ctx.lineWidth = .6
     ctx.stroke()
   }
-  ctx.transform(ax,ay,bx,by,0,0)
+  if (cy < 0) ctx.transform(-ax,-ay,bx,by,dx,dy)
+  else ctx.transform(ax,ay,bx,by,0,0)
   ctx.drawImage(face,-100,-100,200,200)
   outline(ctx,points,.992)
   ctx.clip()
