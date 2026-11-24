@@ -1,10 +1,11 @@
 import Navbar from './components/Navbar/Navbar'
-import { useContext, useEffect } from 'react'
+import { lazy, Suspense, useContext, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { AccountContext } from './account/AccountContext'
 import Home from './pages/Home/Home'
-import Coin from './pages/Coin/Coin'
 import PersonalMarket, { MarketNav } from './account/PersonalMarket'
+
+const Coin = lazy(() => import('./pages/Coin/Coin'))
 
 const App = () => {
   const { user } = useContext(AccountContext)
@@ -23,11 +24,10 @@ const App = () => {
   }, [navigate, user])
   return (
     <div className='app'>
-     <Navbar/>
-     <MarketNav />
+     <Navbar><MarketNav /></Navbar>
      <Routes>
        <Route path='/' element={<Home />} />
-       <Route path='/coin/:coinId' element={<Coin />} />
+       <Route path='/coin/:coinId' element={<Suspense fallback={<p className="personal" role="status">Memuat detail koin…</p>}><Coin /></Suspense>} />
        {['watch', 'alert', 'holding'].map(kind =>
          <Route key={kind} path={'/saya/' + kind} element={<PersonalMarket key={kind} kind={kind} />} />)}
      </Routes>

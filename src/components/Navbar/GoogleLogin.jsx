@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { client, login } from '../../account/client'
 import { AccountContext } from '../../account/AccountContext'
+import Icon from '../Icon'
 
 export default function GoogleLogin({ label = 'LOGIN' }) {
   const { user } = useContext(AccountContext)
@@ -47,7 +48,8 @@ export default function GoogleLogin({ label = 'LOGIN' }) {
   return (
     <div className="google-login">
       {name && <span className="account-name" title={name}>{name}</span>}
-      <button type="button" className="signup-btn" disabled={busy || user === undefined} onClick={handleClick}>
+      <button type="button" className="signup-btn glass-button primary" disabled={busy || user === undefined} onClick={handleClick}>
+        <Icon name="enter" size={15} />
         {busy || user === undefined ? 'Memproses…' : user ? 'Keluar' : label}
       </button>
       {message && <p className="login-message" role="status">{message}</p>}

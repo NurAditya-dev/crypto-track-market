@@ -21,7 +21,7 @@ function WatchLoginPrompt({ coin, onLogin, onDismiss }) {
     onFocus={() => setFocused(true)}
     onBlur={event => setFocused(event.currentTarget.contains(event.relatedTarget))}>
     <p>Masuk untuk menyimpan {coin.name} ke Pantauan Saya.</p>
-    <button onClick={onLogin}>Masuk dengan Google</button>
+    <button className="glass-button primary" onClick={onLogin}>Masuk dengan Google</button>
     <button onClick={onDismiss}>Batal</button>
   </div>
 }

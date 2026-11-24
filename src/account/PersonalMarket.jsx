@@ -6,8 +6,10 @@ import { CoinContext } from '../context/CoinContext.js'
 import { client } from './client'
 import useQuotes from './useQuotes'
 import './personal.css'
+import Icon from '../components/Icon'
 
 const pages = { watch: 'Pantauan Saya', alert: 'Peringatan Harga', holding: 'Portofolio' }
+const navIcons = { watch: 'star', alert: 'bell', holding: 'wallet' }
 const money = (value, currency = 'idr') => Number.isFinite(value)
   ? value.toLocaleString('id-ID', { style: 'currency', currency, maximumFractionDigits: value && Math.abs(value) < 1 ? 8 : 2 })
   : '—'
@@ -16,9 +18,9 @@ export function MarketNav() {
   const { entries } = useContext(AccountContext)
   const triggered = entries.filter(row => row.kind === 'alert' && row.triggered_at).length
   return <nav className="market-nav" aria-label="Navigasi pasar">
-    <NavLink to="/" end>Pasar</NavLink>
+    <NavLink to="/" end><Icon name="market" size={16} />Pasar</NavLink>
     {Object.entries(pages).map(([key, label]) =>
-      <NavLink to={'/saya/' + key} key={key}>{label}
+      <NavLink to={'/saya/' + key} key={key}><Icon name={navIcons[key]} size={16} />{label}
         {key === 'alert' && triggered > 0 && <span aria-label={triggered + ' target tercapai'}>{triggered}</span>}
       </NavLink>)}
   </nav>
@@ -65,7 +67,7 @@ function EntryForm({ kind, coins, initialCoin, entry, onCancel }) {
       : <label>Beri tahu saat harga<select name="direction" defaultValue={entry?.direction}><option value="below">Turun hingga</option><option value="above">Naik hingga</option></select></label>}
     <label>{holding ? 'Harga beli per koin (Rp)' : 'Target harga (Rp)'}
       <input name="price" type="number" step="any" min="0" defaultValue={entry?.price} required /></label>
-    <button disabled={busy}>{entry ? 'Simpan perubahan' : holding ? 'Catat pembelian' : 'Buat peringatan'}</button>
+    <button className="glass-button primary" disabled={busy}>{entry ? 'Simpan perubahan' : holding ? 'Catat pembelian' : 'Buat peringatan'}</button>
     {entry && <button type="button" className="remove-entry" disabled={busy} onClick={onCancel}>Batal</button>}
     {error && <p role="alert">{error}</p>}
   </form>

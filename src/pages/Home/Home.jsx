@@ -5,7 +5,10 @@ import LockedFeatures from '../../account/LockedFeatures'
 import { AccountContext } from '../../account/AccountContext'
 import { CoinContext } from '../../context/CoinContext.js'
 import useQuotes from '../../account/useQuotes'
-import { PriceStatus, Sparkline } from './MarketDetails'
+import Icon from '../../components/Icon'
+import MarketScene from './MarketScene'
+import { ChangeBadge, CoinIcon, Highlights, PriceStatus, Sparkline } from './MarketDetails'
+import { formatPrice } from './formatPrice'
 
 const columns = {
   current_price: 'Harga',
@@ -13,6 +16,7 @@ const columns = {
   market_cap: 'Kapitalisasi pasar',
 }
 const filters = { all: 'Semua koin', gainers: 'Naik terbesar', losers: 'Turun terbesar', watch: 'Pantauan Saya' }
+const filterIcons = { all: 'grid', gainers: 'rise', losers: 'fall', watch: 'star' }
 const coinsPerPage = 10
 
 function comparePrices(a, b, field, ascending) {
@@ -24,13 +28,6 @@ function comparePrices(a, b, field, ascending) {
 function matchesSearch(coin, query) {
   return coin.name.toLowerCase().includes(query) || coin.symbol.toLowerCase().includes(query)
 }
-
-function formatPrice(price, currency) {
-  return Number.isFinite(price)
-    ? price.toLocaleString('id-ID', { style: 'currency', currency: currency.name, maximumFractionDigits: price < 1 ? 10 : 2 })
-    : '—'
-}
-
 
 const Home = () => {
   const { user, entries, ready, busy, toggleWatch } = useContext(AccountContext)
@@ -91,7 +88,7 @@ const Home = () => {
 
   function handlePageChange(page) {
     updateParams({ page: page > 1 ? page : '' })
-    tableWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    tableWrapRef.current?.scrollIntoView({ block: 'nearest' })
   }
 
   function handleSort(field, direction) {
@@ -114,31 +111,35 @@ const Home = () => {
   useEffect(() => {
     const resetHome = () => {
       setIsSuggestionOpen(false)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({ top: 0 })
     }
     window.addEventListener('reset-crypto-home', resetHome)
     return () => window.removeEventListener('reset-crypto-home', resetHome)
   }, [])
 
   return (
-    <div className='home'>
-      <div className='hero'>
-        <h1>Pantau harga kripto</h1>
-        <p>
-          Cari koin dan lihat harga, perubahan 24 jam, serta kapitalisasi pasarnya.
-        </p>
+    <main className='home'>
+      <section className='hero' aria-labelledby='market-title'>
+        <MarketScene />
+        <div className='hero-content'>
+        <PriceStatus updatedAt={pricesUpdatedAt} loading={pricesLoading} failed={pricesFailed} onReload={reloadPrices} />
+        <h1 id='market-title'>Pasar <em>kripto</em></h1>
+        <p className='hero-description'>Bandingkan harga dan perubahan koin selama 24 jam.</p>
         <form className='search-form' onSubmit={event => {
           event.preventDefault()
           setIsSuggestionOpen(false)
-          tableWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          tableWrapRef.current?.scrollIntoView({ block: 'nearest' })
         }}>
           <div className='search-wrapper'>
             <div className='search-input-box'>
+              <Icon name="search" size={18} />
               <input
                 type='text'
                 className='search-input'
+                aria-label='Cari nama atau simbol koin'
                 placeholder='Cari nama atau simbol koin'
                 value={searchTerm}
+                onKeyDown={event => { if (event.key === 'Escape') setIsSuggestionOpen(false) }}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
               {searchTerm && (
@@ -177,17 +178,20 @@ const Home = () => {
               </div>
             )}
           </div>
-          <button type='submit' className='search-button'>Cari</button>
+          <button type='submit' className='glass-button primary search-button'>Cari <Icon name="arrow" size={15} /></button>
         </form>
-      </div>
+        </div>
+      </section>
 
-      <div className='market-controls'>
-        <PriceStatus updatedAt={pricesUpdatedAt} loading={pricesLoading} failed={pricesFailed} onReload={reloadPrices} />
+      <Highlights coins={allCoin} currency={currency} coinLink={coinLink} />
+      <section className='market-panel' aria-labelledby='list-title'>
+        <div className='section-heading'><h2 id='list-title'>Daftar pasar</h2><span>Data dari CoinGecko</span></div>
+        <div className='market-controls'>
         <div className='market-filters' role='group' aria-label='Filter koin'>
           {Object.entries(filters).filter(([id]) => id !== 'watch' || user).map(([id, label]) =>
-            <button type='button' key={id} aria-pressed={filter === id}
+            <button type='button' key={id} className='glass-button' aria-pressed={filter === id}
               onClick={() => { setIsSuggestionOpen(false); updateParams({ filter: id === 'all' ? '' : id, sort: '', order: '', page: '' }) }}>
-              {label}
+              <Icon name={filterIcons[id]} size={15} />{label}
             </button>)}
         </div>
         <label className='mobile-sort'>Urutkan
@@ -220,6 +224,7 @@ const Home = () => {
                   </button>
                 </th>)}
               <th className='col-trend' scope='col'>7 hari</th>
+              <th className='col-actions' scope='col'><span className='sr-only'>Aksi</span></th>
             </tr>
           </thead>
           <tbody>
@@ -236,13 +241,7 @@ const Home = () => {
                     <td className='table-rank'>{coin.market_cap_rank ?? '—'}</td>
                     <td className='table-coin'>
                       <div className='coin-info'>
-                        <button className="watch-star" type="button" aria-label={`Pantau ${coin.name}`}
-                          aria-pressed={watchedIds.has(coin.id)}
-                          disabled={user === undefined || (user && !ready) || busy}
-                          onClick={e => { e.stopPropagation(); toggleWatch(coin) }}>
-                          {watchedIds.has(coin.id) ? '★' : '☆'}
-                        </button>
-                        {coin.image && <img src={coin.image} alt='' className='coin-image' />}
+                        <CoinIcon coin={coin} />
                         <Link className='coin-name-wrap' to={detailUrl} onClick={event => event.stopPropagation()}>
                           <span className='coin-name'>{coin.name}</span>
                           {coin.symbol && <span className='coin-symbol'>{coin.symbol.toUpperCase()}</span>}
@@ -250,17 +249,23 @@ const Home = () => {
                       </div>
                     </td>
                     <td className='table-price'>{formatPrice(coin.current_price, currency)}</td>
-                    <td className={`table-change ${Number.isFinite(change) ? change >= 0 ? 'positive' : 'negative' : ''}`}>
-                      {Number.isFinite(change) ? `${change > 0 ? '+' : ''}${change.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%` : '—'}
-                    </td>
+                    <td className='table-change'><ChangeBadge value={change} /></td>
                     <td className='table-cap'>{formatPrice(coin.market_cap, currency)}</td>
                     <td className='table-trend'><Sparkline prices={coin.sparkline_in_7d?.price} /></td>
+                    <td className='table-actions'>
+                      <button className="watch-star" type="button" aria-label={`Pantau ${coin.name}`}
+                        title={watchedIds.has(coin.id) ? 'Hapus dari pantauan' : 'Simpan ke pantauan'}
+                        aria-pressed={watchedIds.has(coin.id)} disabled={user === undefined || (user && !ready) || busy}
+                        onClick={e => { e.stopPropagation(); toggleWatch(coin) }}>
+                        <Icon name="star" size={17} />
+                      </button>
+                    </td>
                   </tr>
                 )
               })
             ) : (
               <tr>
-                <td colSpan='6' className='no-results'>{emptyMessage}</td>
+                <td colSpan='7' className='no-results'>{emptyMessage}</td>
               </tr>
             )}
           </tbody>
@@ -311,8 +316,9 @@ const Home = () => {
           </button>
         </div>
       )}
+      </section>
       {user === null && <LockedFeatures />}
-    </div>
+    </main>
   )
 }
 

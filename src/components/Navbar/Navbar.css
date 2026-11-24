@@ -1,134 +1,38 @@
-.navbar{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px min(6vw, 60px);
-    color: #dfe7f3;
-    background: rgba(15, 23, 42, 0.85);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-    backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    gap: 16px;
+.navbar { position: relative; z-index: 25; background: #0d0c13ed; border-bottom: 1px solid var(--line); }
+.nav-inner { width: var(--shell); min-height: 70px; margin: auto; display: flex; align-items: center; gap: clamp(18px, 4vw, 68px); }
+.logo-link { display: inline-flex; align-items: center; gap: 9px; font-weight: 680; font-size: 1.32rem; letter-spacing: -.055em; }
+.logo-link img { display: block; width: 31px; height: 31px; }
+.market-nav { display: flex; align-self: stretch; align-items: stretch; gap: clamp(10px, 2vw, 30px); }
+.market-nav a { position: relative; display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .85rem; white-space: nowrap; }
+.market-nav a:hover { color: var(--text); }
+.market-nav a.active { color: #d5c3ff; }
+.market-nav a.active::after { content: ''; position: absolute; inset: auto 0 -1px; height: 2px; background: #b795ff; }
+.market-nav a span { padding: 1px 5px; border-radius: 5px; background: #39294f; }
+.nav-right, .google-login { display: flex; align-items: center; gap: 10px; }
+.nav-right { margin-left: auto; }
+.currency-select, .mobile-sort select { border: 1px solid var(--line); border-radius: 8px; color: #e6e2ef; background: #18171f; padding: 9px 8px; font-size: .8rem; }
+.account-name { max-width: 10ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
+.google-login { position: relative; }
+.login-message { position: absolute; right: 0; top: calc(100% + 6px); width: max-content; max-width: min(285px,85vw); padding: 10px; border: 1px solid var(--line); background: var(--raised); color: var(--text); border-radius: 8px; }
+@media (max-width: 940px) {
+  .nav-inner { min-height: 62px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 0 12px; }
+  .logo-link, .nav-right { margin-block: 12px; }
+  .market-nav { grid-row: 2; grid-column: 1/-1; overflow-x: auto; scrollbar-width: none; gap: 20px; }
+  .market-nav a { min-height: 40px; }
+  .market-nav a.active::after { bottom: 0; }
+  .nav-right { grid-row: 1; grid-column: 2; }
 }
-.logo-link{
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-    flex-shrink: 0;
+@media (max-width: 365px) {
+  .logo-link { font-size: 1.12rem; gap: 5px; }
+  .logo-link img { width: 25px; height: 25px; }
+  .nav-right .signup-btn svg { display: none; }
+  .market-nav { min-width: 0; }
 }
-.logo-link:hover{
-    transform: scale(1.03);
-    opacity: 0.95;
-}
-.logo-link:active{
-    transform: scale(0.97);
-}
-.navbar .logo,
-.navbar .Logo{
-    width: clamp(100px, 12vw, 135px);
-    filter: brightness(0.95);
-    display: block;
-}
-.navbar ul{
-    display: flex;
-    align-items: center;
-    gap: clamp(12px, 2.5vw, 36px);
-    list-style: none;
-}
-.navbar li{
-    cursor: pointer;
-    color: #cbd5e1;
-    font-size: clamp(0.82rem, 1.1vw, 1rem);
-    font-weight: 500;
-    transition: color 0.2s ease;
-    white-space: nowrap;
-}
-.navbar li:hover{
-    color: #f8fafc;
-}
-.nav-right{
-    display: flex;
-    align-items: center;
-    gap: clamp(8px, 1.2vw, 14px);
-    flex-shrink: 0;
-}
-.currency-select{
-    padding: 8px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    background: rgba(15, 23, 42, 0.7);
-    color: #e2e8f0;
-    font-size: clamp(0.78rem, 1vw, 0.9rem);
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-}
-.currency-select:hover,
-.currency-select:focus{
-    border-color: rgba(148, 163, 184, 0.5);
-}
-.signup-btn{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 16px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%);
-    color: #0f172a;
-    font-weight: 700;
-    font-size: clamp(0.78rem, 1vw, 0.92rem);
-    box-shadow: 0 4px 14px rgba(148, 163, 184, 0.2);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.signup-btn:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(148, 163, 184, 0.32);
-}
-.signup-btn:active{
-    transform: translateY(0);
-}
-.arrow-icon{
-    width: 12px;
-    height: 12px;
-    filter: brightness(0.15);
-}
-.navbar option{
-    background: #0f172a;
-    color: #f8fafc;
-}
-.google-login {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.account-name {
-    max-width: min(24vw, 14rem);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.login-message {
-    position: absolute;
-    right: min(6vw, 60px);
-    top: 100%;
-    max-width: 90vw;
-    padding: 10px 14px;
-    background: #1e293b;
-    border-radius: 8px;
-}
-.signup-btn:disabled {
-    opacity: 0.7;
-    cursor: wait;
-}
-@media (max-width: 480px) {
-    .navbar { flex-wrap: wrap; padding: 12px; gap: 8px; }
-    .nav-right { margin-left: auto; flex-wrap: wrap; max-width: 100%; }
-    .signup-btn { padding: 8px 10px; }
+@media (max-width: 520px) {
+  .market-nav { justify-content: space-between; gap: 10px; }
+  .market-nav svg { display: none; }
+  .market-nav a { font-size: .76rem; }
+  .account-name { display: none; }
+  .nav-right { gap: 6px; }
+  .nav-right .glass-button { padding-inline: 10px; }
 }
