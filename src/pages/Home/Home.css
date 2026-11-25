@@ -1,8 +1,6 @@
-.home { width: 100%; padding-bottom: 54px; display: grid; grid-template-columns: minmax(0,1fr); gap: clamp(24px,2.7vw,38px); }
-.home > :not(.hero) { width: var(--shell); margin-inline: auto; }
+.home { width: var(--shell); margin-inline: auto; padding: clamp(16px,2vw,28px) 0 54px; display: grid; grid-template-columns: minmax(0,1fr); gap: clamp(24px,2.7vw,38px); }
 .hero {
-  position: relative; isolation: isolate; border-bottom: 1px solid #484334;
-  padding-inline: calc((100% - var(--shell)) / 2);
+  position: relative; isolation: isolate; border: 1px solid #484334; border-radius: 10px;
   background: radial-gradient(ellipse 36% 108% at 77% 60%,#7261414d,transparent 92%),
     linear-gradient(110deg,#111316 0%,#131519 46%,#211f1b 79%,#151619);
 }
@@ -12,7 +10,7 @@
   background-size: 36px 36px; mask-image: linear-gradient(100deg,transparent 8%,#000 78%);
 }
 .hero-content { position: relative; z-index: 1; width: 56%; padding: clamp(26px,3vw,44px); }
-.hero-terrain { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mask-image: linear-gradient(90deg,#0005,#0004 32%,#000 70%); }
+.hero-terrain { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; pointer-events: none; mask-image: linear-gradient(90deg,#0005,#0004 32%,#000 70%); }
 .spin-hint { color: var(--muted); font-size: .68rem; }
 .model-gallery { position: absolute; inset: 0 0 0 auto; width: 50%; display: grid; grid-template-rows: minmax(0,1fr) auto; }
 .market-scene {
@@ -136,7 +134,6 @@
 }
 @media (max-width: 630px) {
   .home { gap: 23px; }
-  .hero { padding-inline: 0; }
   .hero-content { width: 100%; padding: 21px; }
   .hero { display: flex; flex-direction: column; }
   .model-gallery { position: relative; order: 2; width: 100%; height: 164px; border-top: 1px solid #ffffff0f; }
